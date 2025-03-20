@@ -9,7 +9,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
-const cors = require("cors");
+import cors from "cors";
 // Load environment variables
 dotenv.config();
 
