@@ -20,10 +20,9 @@ export const loginUser = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.post("/api/auth/login", userData);
-      localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data?.error || "Login failed");
     }
   }
 );
@@ -32,7 +31,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    token: localStorage.getItem("token") || null,
     loading: false,
     error: null,
   },

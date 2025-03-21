@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import Cart from "../models/cartModel.js";
+
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -30,7 +31,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const savedUser = await user.save();
   if (savedUser) {
     res.status(200).json({
-      message: "Registration Successful",
+      message: "Registration Successful.Please Log In.",
       redirect: "/api/auth/login",
     });
   } else {
@@ -44,25 +45,41 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (!email || !password) {
     return res.status(401).json({ error: "Email and password are required" });
   }
-  const user = await User.findOne({ email: email });
+
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(401).json({ error: "Invalid email or password" });
   }
-  const isMatch = await bcrypt.compare(password, user.password);
 
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(401).json({ error: "Invalid email or password" });
   }
 
+  // Generate JWT Token
   const token = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: "30d" }
+    {
+      expiresIn: "30d",
+    }
   );
 
-  res.cookie("token", token, { httpOnly: true, secure: false });
+  // Set Secure Cookie
+  res.cookie("token", token, {
+    httpOnly: true, // Prevents XSS attacks
+    secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+    sameSite: "Strict", // Prevents CSRF
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  });
+
   return res.status(200).json({
     message: "Login successful!",
-    redirect: "/api/home",
-   });
+    user: { id: user._id, email: user.email },
+  });
+});
+
+export const logoutUser = asyncHandler(async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ message: "Logged out successfully",redirect:"/api/auth/register" });
 });
