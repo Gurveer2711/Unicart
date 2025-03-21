@@ -18,8 +18,13 @@ connectDB();
 
 const app = express();
 
-//Allow all origins
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // 🔹 Allow only frontend origin
+    credentials: true, // 🔹 Allow sending cookies
+  })
+);
+
 
 app.use(express.json());
 app.use(cookieParser());
