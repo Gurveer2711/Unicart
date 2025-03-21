@@ -11,6 +11,8 @@ import store from "./app/store.js";
 import Home from "./pages/Home.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import Products from "./pages/Products.jsx";
+import ProductDetails from "./pages/ProductDetails.jsx";
 
 function Layout() {
   const location = useLocation();
@@ -24,6 +26,8 @@ function Layout() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
       </Routes>
       {!hideNavbarFooter && <Footer />}
     </>
