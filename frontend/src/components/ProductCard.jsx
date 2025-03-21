@@ -30,8 +30,10 @@ const ProductCard = ({ product }) => {
   const handleIncrement = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setQuantity(quantity + 1);
-    dispatch(addToCart({ id: product.id, quantity: quantity + 1 }));
+    if (quantity < product.stocksLeft) {
+      setQuantity(quantity + 1);
+      dispatch(addToCart({ id: product.id, quantity: quantity + 1 }));
+    }
   };
 
   const handleDecrement = (e) => {
@@ -47,7 +49,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <Link to={`/product/${product.id}`} className="block">
-      <div className="bg-white shadow-lg rounded-xl p-4 transition-transform hover:scale-[1.02] cursor-pointer h-[400px] flex flex-col">
+      <div className="bg-white shadow-lg rounded-xl p-4 transition-transform hover:scale-[1.02] cursor-pointer h-[420px] flex flex-col">
         {/* Image Container */}
         <div className="overflow-hidden rounded-lg h-52 flex justify-center items-center flex-shrink-0">
           <img
@@ -77,6 +79,13 @@ const ProductCard = ({ product }) => {
             ${product.price}
           </p>
 
+          {/* Stock Left */}
+          <div className="flex"></div>
+          <p className="text-gray-600 text-sm mt-1">
+            Stock Left:{" "}
+            <span className="font-semibold">{product.stocksLeft}</span>
+          </p>
+
           {/* Add to Cart Button or Quantity Controls */}
           <div className="h-12 flex items-center justify-center mt-auto">
             {cartItem ? (
@@ -90,7 +99,12 @@ const ProductCard = ({ product }) => {
                 <span>{cartItem.quantity}</span>
                 <button
                   onClick={handleIncrement}
-                  className="bg-[#f46530] text-white px-4 py-2 rounded-lg hover:bg-[#dc6438]"
+                  disabled={cartItem.quantity >= product.stocksLeft} // Disable if stock is reached
+                  className={`px-4 py-2 rounded-lg text-white ${
+                    cartItem.quantity >= product.stocksLeft
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#f46530] hover:bg-[#dc6438]"
+                  }`}
                 >
                   +
                 </button>
@@ -98,9 +112,14 @@ const ProductCard = ({ product }) => {
             ) : (
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-[#f46530] text-white py-2 rounded-lg transition-colors duration-300 hover:bg-[#d95327] text-center"
+                disabled={product.stocksLeft === 0} // Disable if out of stock
+                className={`w-full py-2 rounded-lg transition-colors duration-300 text-center text-white ${
+                  product.stocksLeft === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#f46530] hover:bg-[#d95327]"
+                }`}
               >
-                Add to Cart
+                {product.stocksLeft === 0 ? "Out of Stock" : "Add to Cart"}
               </button>
             )}
           </div>
@@ -121,6 +140,7 @@ ProductCard.propTypes = {
     }).isRequired,
     price: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
+    stocksLeft: PropTypes.number.isRequired, // Added stock validation
   }).isRequired,
 };
 
