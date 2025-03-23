@@ -44,14 +44,17 @@ export const addItemToCart = asyncHandler(async (req, res) => {
   cart.totalAmount = cart.items.reduce((total, item) => {
     return total + item.quantity * product.price;
   }, 0);
-  const itemAdded = cart.items.find(
-    (item) => item.productId.toString() === productId
-  );
 
   await cart.save();
 
-  res.status(201).json({item:itemAdded });
+  // Fetch updated cart with product details
+  const updatedCart = await Cart.findOne({ user: userId }).populate(
+    "items.productId"
+  );
+
+  res.status(201).json(updatedCart);
 });
+
 
 // Remove Item from Cart
 export const removeItemFromCart = asyncHandler(async (req, res) => {
