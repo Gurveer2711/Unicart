@@ -37,7 +37,7 @@ app.use(
 
 const limiter = rateLimit({
   windowMs: 5 * 1000, // 5 seconds
-  max: 5, // Limit each IP to 5 requests per 5 seconds
+  max: 10, // Limit each IP to 5 requests per 5 seconds
   message: { error: "Too many requests, please try again later." },
   headers: true, // Send `RateLimit-*` headers
 });
