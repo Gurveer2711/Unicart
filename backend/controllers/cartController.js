@@ -59,6 +59,8 @@ export const addItemToCart = asyncHandler(async (req, res) => {
 // Remove Item from Cart
 export const removeItemFromCart = asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  console.log("Req user id",req.user.id);
+  console.log("Req user _id",req.user._id);
   const { productId } = req.body;
 
   if (!productId) {
@@ -80,14 +82,11 @@ export const removeItemFromCart = asyncHandler(async (req, res) => {
   const removedItem = cart.items[itemIndex];
   const product = await Product.findById(productId);
 
-  if (removedItem.quantity > 1) {
-    removedItem.quantity -= 1;
-  } else {
     cart.items.splice(itemIndex, 1);
-  }
+  
 
   if (product) {
-    product.stocksLeft += 1;
+    product.stocksLeft += removedItem.quantity;
     await product.save();
   }
 
