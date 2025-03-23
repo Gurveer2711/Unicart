@@ -4,67 +4,46 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchProductById } from "../features/productSlice";
-import { addToCart, removeFromCart } from "../features/cartSlice";
+import { addToCart } from "../features/cartSlice";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  // Selecting product and cart state from Redux
-  const { selectedProduct, loading, error } = useSelector(
-    (state) => state.products
-  );
-  const cartItems = useSelector((state) => state.cart.items);
-
-  // Finding the product in cart using productId
-  const cartItem = cartItems.find(
-    (item) => item.productId === selectedProduct?._id
-  );
-  const [quantity, setQuantity] = useState(cartItem ? cartItem.quantity : 1);
-
-  // Fetch product on component mount or when ID changes
+  // Fetch product only when ID changes
   useEffect(() => {
     dispatch(fetchProductById(id));
   }, [dispatch, id]);
 
-  // Sync quantity state with Redux cart
+  // Selecting product and cart state from Redux
+  const { selectedProduct, loading, error } = useSelector(
+    (state) => state.products
+  );
+
+  // Local state for UI updates
+  const [inCart, setInCart] = useState(false);
+  const [stockLeft, setStockLeft] = useState(null);
+
+  // Update stockLeft when the selected product changes
   useEffect(() => {
-    setQuantity(cartItem ? cartItem.quantity : 1);
-  }, [cartItem]);
+    if (selectedProduct) {
+      setStockLeft(selectedProduct.stocksLeft);
+    }
+  }, [selectedProduct]);
 
   // Handle Add to Cart
   const handleAddToCart = (e) => {
     e.preventDefault();
-    dispatch(addToCart({ productId: selectedProduct._id, quantity }));
-  };
+    if (stockLeft > 0) {
+      dispatch(addToCart({ productId: selectedProduct._id, quantity: 1 }));
+      setInCart(true);
+      setStockLeft((prevStock) => prevStock - 1); // Reduce stock by 1 locally
 
-  // Handle Increment with correct state update
-  const handleIncrement = (e) => {
-    e.preventDefault();
-    setQuantity((prev) => {
-      const newQuantity = prev + 1;
-      dispatch(
-        addToCart({ productId: selectedProduct._id, quantity: newQuantity })
-      );
-      return newQuantity;
-    });
-  };
-
-  // Handle Decrement with correct removal logic
-  const handleDecrement = (e) => {
-    e.preventDefault();
-    setQuantity((prev) => {
-      if (prev > 1) {
-        const newQuantity = prev - 1;
-        dispatch(
-          addToCart({ productId: selectedProduct._id, quantity: newQuantity })
-        );
-        return newQuantity;
-      } else {
-        dispatch(removeFromCart(selectedProduct._id));
-        return 1;
-      }
-    });
+      // Show "Added to Cart" for 2 seconds
+      setTimeout(() => {
+        setInCart(false);
+      }, 2000);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -86,28 +65,26 @@ const ProductDetails = () => {
             ${selectedProduct?.price}
           </p>
 
-          {/* Add to Cart Button or Quantity Controls */}
-          <div className="h-12 flex items-center">
-            {cartItem ? (
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleDecrement}
-                  className="bg-[#f46530] text-white px-4 py-2 rounded-lg hover:bg-[#dc6438]"
-                >
-                  -
-                </button>
-                <span>{quantity}</span>
-                <button
-                  onClick={handleIncrement}
-                  className="bg-[#f46530] text-white px-4 py-2 rounded-lg hover:bg-[#dc6438]"
-                >
-                  +
-                </button>
-              </div>
+          {/* Stocks Left */}
+          <p className="text-gray-600 font-medium mb-4">
+            {stockLeft !== null ? stockLeft : "Loading..."} items left in stock
+          </p>
+
+          {/* Add to Cart Button */}
+          <div className="h-12 flex items-center justify-start mt-auto">
+            {inCart ? (
+              <span className="bg-green-500 text-white px-4 py-2 rounded-lg">
+                Added to Cart
+              </span>
             ) : (
               <button
                 onClick={handleAddToCart}
-                className="bg-[#f46530] text-white px-6 py-2 rounded-lg hover:bg-[#dc6438]"
+                disabled={stockLeft === 0}
+                className={`px-5 py-2 rounded-lg transition-colors duration-300 text-white ${
+                  stockLeft === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#f46530] hover:bg-[#d95327]"
+                }`}
               >
                 Add to Cart
               </button>

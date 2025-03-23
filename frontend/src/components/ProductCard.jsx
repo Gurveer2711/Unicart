@@ -2,13 +2,12 @@
 
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items);
   const [stocks, setStocks] = useState(product.stocksLeft);
   const [inCart, setInCart] = useState(false);
 
