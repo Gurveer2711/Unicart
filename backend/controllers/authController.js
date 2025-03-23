@@ -5,13 +5,16 @@ import bcrypt from "bcryptjs";
 import Cart from "../models/cartModel.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
+  const token = req.cookies.token;
+  if (token) {
+    return res.status(200).json({ message: "User is already logged in.Please logout first." });
+  }
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     res.status(400);
     throw new Error("Please add all fields");
   }
-
   // Check if user exists
   const userExists = await User.findOne({ email });
 
@@ -41,6 +44,13 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
+  let token = req.cookies.token;
+  if (token) {
+    return res
+      .status(200)
+      .json({ message: "User is already logged in.Please logout first." });
+  }
+
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(401).json({ error: "Email and password are required" });
@@ -57,7 +67,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   }
 
   // Generate JWT Token
-  const token = jwt.sign(
+  token = jwt.sign(
     { id: user._id, email: user.email },
     process.env.JWT_SECRET,
     {
