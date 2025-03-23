@@ -12,20 +12,19 @@ const ProductCard = ({ product }) => {
   const [stocks, setStocks] = useState(product.stocksLeft);
   const [inCart, setInCart] = useState(false);
 
-  // 🔥 Update `inCart` when `cartItems` change
-  useEffect(() => {
-    const itemInCart = cartItems.some(
-      (item) => item.productId._id === product._id
-    );
-    setInCart(itemInCart);
-  }, [cartItems, product._id]);
-
-  
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (stocks > 0) {
       dispatch(addToCart({ productId: product._id, quantity: 1 }));
+      setStocks((prevStocks) => prevStocks - 1);
+      setInCart(true);
+
+      // Set inCart back to false after 2 seconds
+      setTimeout(() => {
+        setInCart(false);
+      }, 2000);
     }
   };
 
@@ -66,7 +65,7 @@ const ProductCard = ({ product }) => {
           <div className="h-12 flex items-center justify-center mt-auto">
             {inCart ? (
               <span className="bg-green-500 text-white px-4 py-2 rounded-lg">
-                In Cart
+                Added to Cart
               </span>
             ) : (
               <button
