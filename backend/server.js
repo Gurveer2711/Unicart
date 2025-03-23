@@ -10,6 +10,8 @@ import imageRoutes from "./routes/imageRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
+
 // Load environment variables
 dotenv.config();
 
@@ -20,12 +22,27 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // 🔹 Allow only frontend origin
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "DELETE", "PUT"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Cache-Control",
+      "Expires",
+      "Pragma",
+    ],
     credentials: true, // 🔹 Allow sending cookies
   })
 );
 
+const limiter = rateLimit({
+  windowMs: 5 * 1000, // 5 seconds
+  max: 5, // Limit each IP to 5 requests per 5 seconds
+  message: { error: "Too many requests, please try again later." },
+  headers: true, // Send `RateLimit-*` headers
+});
 
+app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
