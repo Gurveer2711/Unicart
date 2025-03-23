@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromCart, addToCart, fetchCart } from "../features/cartSlice";
 import { NavLink } from "react-router-dom";
+import CartCard from "../components/CartCard";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -12,20 +13,25 @@ const Cart = () => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-  // Debugging: Log cart items whenever they change
-  useEffect(() => {
-    console.log("🛒 Updated Cart State:", items);
-  }, [items]);
-
   // Remove item from cart
   const handleRemove = (productId) => {
     dispatch(removeFromCart(productId));
+    window.location.reload();
+  }; 
+
+  // Increase item quantity
+  const handleIncreaseQuantity = (productId) => {
+    dispatch(addToCart({ productId, quantity: 1 }));
   };
 
-  // Update item quantity
-  const handleQuantityChange = (productId, quantity) => {
-    if (quantity < 1) return;
-    dispatch(addToCart({ productId, quantity }));
+  // Decrease item quantity
+  const handleDecreaseQuantity = (productId, currentQuantity) => {
+    if (currentQuantity == 1) {
+      handleRemove(productId);
+    }
+    if (currentQuantity > 1) {
+      dispatch(addToCart({ productId, quantity: -1 }));
+    }
   };
 
   const totalPrice = items.reduce(
@@ -57,47 +63,13 @@ const Cart = () => {
 
           {/* Cart Items */}
           {items.map((item) => (
-            <div
+            <CartCard
               key={item.productId._id}
-              className="flex flex-col sm:flex-row items-center justify-between border p-6 mb-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 bg-white"
-            >
-              {/* Product Image and Details */}
-              <div className="flex items-center space-x-6">
-                <img
-                  src={item.productId.image}
-                  alt={item.productId.title}
-                  className="w-20 h-20 object-contain rounded-lg"
-                />
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {item.productId.title}
-                  </h2>
-                  <p className="text-gray-600">${item.productId.price}</p>
-                </div>
-              </div>
-
-              {/* Quantity Input and Remove Button */}
-              <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-                <input
-                  type="number"
-                  value={item.quantity}
-                  onChange={(e) =>
-                    handleQuantityChange(
-                      item.productId._id,
-                      parseInt(e.target.value)
-                    )
-                  }
-                  className="w-20 border p-2 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-black"
-                  min="1"
-                />
-                <button
-                  onClick={() => handleRemove(item.productId._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
+              item={item}
+              onRemove={handleRemove}
+              onIncreaseQuantity={handleIncreaseQuantity}
+              onDecreaseQuantity={handleDecreaseQuantity}
+            />
           ))}
 
           {/* Total Price */}
