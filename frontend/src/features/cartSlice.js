@@ -48,10 +48,16 @@ export const removeFromCart = createAsyncThunk(
   "cart/remove",
   async (productId, { rejectWithValue }) => {
     try {
+      console.log("📡 Step 1: Sending request with:", { productId});
       const response = await api.post("/api/cart/remove", { productId });
-      console.log(response);
+      console.log("✅ Step 2: API Response received:", response.data);
+
+      if (!response.data) {
+        throw new Error("Received undefined data from API");
+      }
       return response.data;
     } catch (error) {
+      console.error("❌ Step 3: Error in removeFromCart:", error);
       return rejectWithValue(
         error.response?.data || "Failed to remove item from cart"
       );
@@ -78,8 +84,7 @@ const cartSlice = createSlice({
   initialState: {
     items: [],
     totalAmount: 0,
-
-    totalItems: 0, // Track total number of items
+    totalItems: 0,// Track total number of items
     loading: false,
     error: null,
   },

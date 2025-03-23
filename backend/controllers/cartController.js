@@ -59,8 +59,6 @@ export const addItemToCart = asyncHandler(async (req, res) => {
 // Remove Item from Cart
 export const removeItemFromCart = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  console.log("Req user id",req.user.id);
-  console.log("Req user _id",req.user._id);
   const { productId } = req.body;
 
   if (!productId) {
