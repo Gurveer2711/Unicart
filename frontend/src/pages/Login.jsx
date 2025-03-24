@@ -10,13 +10,21 @@ const Login = () => {
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(loginUser({ email, password })).then((result) => {
-      if (result.meta.requestStatus === "fulfilled") {
-        navigate("/");
-      }
-    });
+    try {
+      // Login with credentials
+      await dispatch(loginUser({ email, password })).unwrap();
+
+      // The backend uses HttpOnly cookies, so we don't need to store the token
+      // The cookie will be automatically sent with subsequent requests
+
+      // Navigate after successful login
+      navigate("/");
+    } catch (error) {
+      // Error is already handled by the Redux slice
+      console.error("Login failed:", error);
+    }
   };
 
   return (

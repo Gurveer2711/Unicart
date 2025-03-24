@@ -11,13 +11,16 @@ const Register = () => {
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(registerUser({ name, email, password })).then((result) => {
-      if (result.meta.requestStatus === "fulfilled") {
-        navigate("/login"); // Redirect to login after successful registration
-      }
-    });
+    try {
+      await dispatch(registerUser({ name, email, password })).unwrap();
+      // Registration successful - redirect to login
+      navigate("/login");
+    } catch (error) {
+      // Error is already handled by the Redux slice
+      console.error("Registration failed:", error);
+    }
   };
 
   return (
