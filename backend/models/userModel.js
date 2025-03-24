@@ -30,8 +30,7 @@
       },
       role: {
         type: String,
-        enum: ["user", "admin"],
-        default: "user",
+          default: "user",
       },
       cart: {
         type: mongoose.Schema.Types.ObjectId,
