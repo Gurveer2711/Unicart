@@ -7,7 +7,9 @@ import Cart from "../models/cartModel.js";
 export const registerUser = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
   if (token) {
-    return res.status(200).json({ message: "User is already logged in.Please logout first." });
+    return res
+      .status(200)
+      .json({ message: "User is already logged in.Please logout first." });
   }
   const { name, email, password } = req.body;
 
@@ -82,14 +84,24 @@ export const loginUser = asyncHandler(async (req, res) => {
     sameSite: "Strict", // Prevents CSRF
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
-
   return res.status(200).json({
     message: "Login successful!",
-    user: { id: user._id, email: user.email },
+    user: { _id: user._id, email: user.email, role: user.role },
   });
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
-  res.clearCookie("token");
-  res.status(200).json({ message: "Logged out successfully",redirect:"/api/auth/register" });
+  // Clear the cookie with the same options that were used when setting it
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+    expires: new Date(0), // Set expiration to epoch time (immediately expired)
+  });
+
+  res
+    .status(200)
+    .json({
+      message: "Logged out successfully",
+    });
 });

@@ -7,9 +7,8 @@ export const protect = asyncHandler(async (req, res, next) => {
   const token = req.cookies.token; // Access the token from the cookie
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Access denied.Please log in again" });
+    res.status(401);
+    throw new Error("Access denied. Please log in again");
   }
 
   try {
@@ -17,20 +16,24 @@ export const protect = asyncHandler(async (req, res, next) => {
     req.user = decoded;
     next(); // Proceed to the next middleware/route handler
   } catch (error) {
-    return res
-      .status(401)
-      .json({ message: "Invalid or expired token. Please log in again." });
+    res.status(401);
+    throw new Error("Invalid or expired token. Please log in again.");
   }
 });
 
 // Admin middleware
-export const admin = async (req, res, next) => {
+export const admin = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
-  if (user.role === 'admin') {
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (user.role === "admin") {
     next();
-  }
-  else {
+  } else {
     res.status(403);
-    throw new Error("Not authorized as a admin");
+    throw new Error("Not authorized as an admin");
   }
-};
+});

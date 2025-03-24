@@ -7,6 +7,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+import checkoutRoutes from "./routes/checkoutRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -30,6 +31,7 @@ app.use(
       "Cache-Control",
       "Expires",
       "Pragma",
+      "stripe-signature",
     ],
     credentials: true, // 🔹 Allow sending cookies
   })
@@ -42,6 +44,16 @@ const limiter = rateLimit({
   headers: true, // Send `RateLimit-*` headers
 });
 
+// Special handling for Stripe webhook endpoint to receive raw body
+app.post(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    req.rawBody = req.body;
+    next();
+  }
+);
+
 app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
@@ -52,6 +64,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/checkout", checkoutRoutes);
 app.use("/uploads", express.static("uploads")); // Serve local uploads
 app.use("/api/image", imageRoutes);
 // Error handling middleware
