@@ -1,9 +1,16 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { ShoppingCart, User } from "lucide-react"; // Importing icons
+import { ShoppingCart, User, LogOut, LogIn } from "lucide-react"; // Importing icons
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { userInfo } = useSelector((state) => state.auth);
+  const { items: cartItems } = useSelector((state) => state.cart);
+
+  // Calculate total quantity of items in cart
+  const cartItemCount =
+    cartItems?.reduce((count, item) => count + item.quantity, 0) || 0;
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -69,15 +76,57 @@ const Navbar = () => {
           {/* Cart with Badge */}
           <NavLink to="/cart" className="relative">
             <ShoppingCart className="w-7 h-7 text-black hover:text-[#f46530]" />
-            <span className="absolute -top-2 -right-2 bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
-              3
-            </span>
+            {cartItemCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+                {cartItemCount}
+              </span>
+            )}
           </NavLink>
+          {/* Auth Links */}
+          {userInfo ? (
+            <>
+              {/* User Profile Button */}
+              <NavLink
+                to="/profile"
+                className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                <User className="w-5 h-5" />
+                <span className="font-medium">Profile</span>
+                {userInfo.role === "admin" && (
+                  <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                    Admin
+                  </span>
+                )}
+              </NavLink>
 
-          {/* User Profile Icon */}
-          <NavLink to="/profile">
-            <User className="w-7 h-7 text-black hover:text-[#f46530]" />
-          </NavLink>
+              {/* Admin Dashboard Button - Only shown for admin users */}
+              {userInfo.role === "admin" && (
+                <NavLink
+                  to="/admin/dashboard"
+                  className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  <span className="font-medium">Dashboard</span>
+                </NavLink>
+              )}
+
+              {/* Logout Button */}
+              <NavLink
+                to="/logout"
+                className="flex items-center gap-1 px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="font-medium">Logout</span>
+              </NavLink>
+            </>
+          ) : (
+            <NavLink
+              to="/login"
+              className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              <LogIn className="w-5 h-5" />
+              <span className="font-medium">Login</span>
+            </NavLink>
+          )}
         </div>
       </div>
 
@@ -131,17 +180,70 @@ const Navbar = () => {
           <NavLink
             to="/cart"
             onClick={toggleMenu}
-            className="text-lg font-semibold text-black"
+            className="text-lg font-semibold text-black flex items-center gap-2"
           >
             Cart
+            {cartItemCount > 0 && (
+              <span className="bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+                {cartItemCount}
+              </span>
+            )}
           </NavLink>
-          <NavLink
-            to="/profile"
-            onClick={toggleMenu}
-            className="text-lg font-semibold text-black"
-          >
-            Profile
-          </NavLink>
+
+          {userInfo ? (
+            <>
+              <NavLink
+                to="/profile"
+                onClick={toggleMenu}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-lg font-semibold"
+              >
+                <User className="w-5 h-5" />
+                Profile
+                {userInfo.role === "admin" && (
+                  <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                    Admin
+                  </span>
+                )}
+              </NavLink>
+
+              {userInfo.role === "admin" && (
+                <NavLink
+                  to="/admin/dashboard"
+                  onClick={toggleMenu}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-lg font-semibold"
+                >
+                  Dashboard
+                </NavLink>
+              )}
+
+              <NavLink
+                to="/logout"
+                onClick={toggleMenu}
+                className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg font-semibold"
+              >
+                <LogOut className="w-5 h-5" />
+                Logout
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                onClick={toggleMenu}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-lg font-semibold"
+              >
+                <LogIn className="w-5 h-5" />
+                Login
+              </NavLink>
+              <NavLink
+                to="/register"
+                onClick={toggleMenu}
+                className="text-lg font-semibold text-black"
+              >
+                Register
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
     </nav>
