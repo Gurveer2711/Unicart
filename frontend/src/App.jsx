@@ -14,8 +14,17 @@ import Footer from "./components/Footer.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
-
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { checkAuth } from "./features/authSlice.js";
+import LogoutPage from "./pages/LogoutPage.jsx";
 function Layout() {
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth()); // Call checkAuth on app start
+  }, [dispatch]);
   const location = useLocation();
   const hideNavbarFooter =
     location.pathname === "/login" || location.pathname === "/register";
@@ -30,6 +39,7 @@ function Layout() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/logout" element={<LogoutPage/>}/>
       </Routes>
       {!hideNavbarFooter && <Footer />}
     </>
