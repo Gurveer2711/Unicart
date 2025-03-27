@@ -1,6 +1,8 @@
+"use client";
+
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { ShoppingCart, User, LogOut, LogIn } from "lucide-react"; // Importing icons
+import { ShoppingCart, User, LogOut, LogIn, Menu } from "lucide-react"; // Added Menu to imports
 import { useSelector } from "react-redux";
 
 const Navbar = () => {
@@ -28,40 +30,8 @@ const Navbar = () => {
           />
         </NavLink>
 
-        {/* Hamburger Menu (Mobile) */}
-        <button
-          onClick={toggleMenu}
-          className="sm:hidden focus:outline-none"
-          aria-label="Toggle Menu"
-        >
-          <svg
-            className="mt-5 w-8 h-8 text-black"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            ></path>
-          </svg>
-        </button>
-
-        {/* Desktop Menu */}
-        <div className="hidden sm:flex space-x-6 mt-9 px-10 items-center">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `relative text-lg font-semibold text-black after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f46530] after:transition-all after:duration-300 ${
-                isActive ? "after:w-full text-[#f46530]" : "after:w-0"
-              } hover:after:w-full`
-            }
-          >
-            Home
-          </NavLink>
+        {/* Desktop Menu - Moved to right side */}
+        <div className="hidden sm:flex space-x-6 mt-9 px-10 items-center ml-auto">
           <NavLink
             to="/products"
             className={({ isActive }) =>
@@ -82,51 +52,50 @@ const Navbar = () => {
               </span>
             )}
           </NavLink>
-          {/* Auth Links */}
+
+          {/* User Profile Icon */}
           {userInfo ? (
-            <>
-              {/* User Profile Button */}
-              <NavLink
-                to="/profile"
-                className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-              >
-                <User className="w-5 h-5" />
-                <span className="font-medium">Profile</span>
-                {userInfo.role === "admin" && (
-                  <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
-                    Admin
-                  </span>
-                )}
-              </NavLink>
-
-              {/* Admin Dashboard Button - Only shown for admin users */}
+            <NavLink to="/profile" className="relative">
+              <User className="w-7 h-7 text-black hover:text-[#f46530]" />
               {userInfo.role === "admin" && (
-                <NavLink
-                  to="/admin/dashboard"
-                  className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  <span className="font-medium">Dashboard</span>
-                </NavLink>
+                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                  A
+                </span>
               )}
-
-              {/* Logout Button */}
-              <NavLink
-                to="/logout"
-                className="flex items-center gap-1 px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="font-medium">Logout</span>
-              </NavLink>
-            </>
+            </NavLink>
           ) : (
-            <NavLink
-              to="/login"
-              className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-            >
-              <LogIn className="w-5 h-5" />
-              <span className="font-medium">Login</span>
+            <NavLink to="/login" className="relative">
+              <LogIn className="w-7 h-7 text-black hover:text-[#f46530]" />
             </NavLink>
           )}
+        </div>
+
+        {/* Mobile Controls - User icon and Menu icon on right */}
+        <div className="flex items-center gap-4 sm:hidden mt-5">
+          {/* User Profile Icon for Mobile */}
+          {userInfo ? (
+            <NavLink to="/profile" className="relative">
+              <User className="w-7 h-7 text-black" />
+              {userInfo.role === "admin" && (
+                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                  A
+                </span>
+              )}
+            </NavLink>
+          ) : (
+            <NavLink to="/login" className="relative">
+              <LogIn className="w-7 h-7 text-black" />
+            </NavLink>
+          )}
+
+          {/* Hamburger Menu (Mobile) - Now using Lucide Menu icon */}
+          <button
+            onClick={toggleMenu}
+            className="focus:outline-none"
+            aria-label="Toggle Menu"
+          >
+            <Menu className="w-8 h-8 text-black" />
+          </button>
         </div>
       </div>
 
@@ -166,25 +135,22 @@ const Navbar = () => {
           <NavLink
             to="/"
             onClick={toggleMenu}
-            className="text-lg font-semibold text-black"
+            className="text-lg font-semibold text-black hover:text-[#f46530]"
           >
             Home
           </NavLink>
           <NavLink
             to="/products"
             onClick={toggleMenu}
-            className="text-lg font-semibold text-black"
+            className="text-lg font-semibold text-black hover:text-[#f46530]"
           >
             Products
           </NavLink>
-          <NavLink
-            to="/cart"
-            onClick={toggleMenu}
-            className="text-lg font-semibold text-black flex items-center gap-2"
-          >
-            Cart
+          {/* Cart with Badge */}
+          <NavLink to="/cart" className="relative">
+            <ShoppingCart className="w-7 h-7 text-black hover:text-[#f46530]" />
             {cartItemCount > 0 && (
-              <span className="bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+              <span className="absolute -top-2 -right-2 bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
                 {cartItemCount}
               </span>
             )}
@@ -195,12 +161,12 @@ const Navbar = () => {
               <NavLink
                 to="/profile"
                 onClick={toggleMenu}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-lg font-semibold"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold hover:text-[#f46530]"
               >
                 <User className="w-5 h-5" />
                 Profile
                 {userInfo.role === "admin" && (
-                  <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                  <span className="ml-1 hover:text-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
                     Admin
                   </span>
                 )}
@@ -210,7 +176,7 @@ const Navbar = () => {
                 <NavLink
                   to="/admin/dashboard"
                   onClick={toggleMenu}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-600 rounded-lg font-semibold"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold"
                 >
                   Dashboard
                 </NavLink>
