@@ -4,21 +4,26 @@ import { registerUser } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
+  const [role, setRole] = useState("user"); // Default role
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [adminCode, setAdminCode] = useState("");
+
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const userData = { name, email, password, role };
+    if (role === "admin") {
+      userData.secretAdminCode = adminCode;
+    }
     try {
-      await dispatch(registerUser({ name, email, password })).unwrap();
-      // Registration successful - redirect to login
+      await dispatch(registerUser(userData)).unwrap();
       navigate("/login");
     } catch (error) {
-      // Error is already handled by the Redux slice
       console.error("Registration failed:", error);
     }
   };
@@ -32,6 +37,32 @@ const Register = () => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Role Selection */}
+          <div className="flex justify-center gap-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value="user"
+                checked={role === "user"}
+                onChange={() => setRole("user")}
+                className="mr-2"
+              />
+              User
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="role"
+                value="admin"
+                checked={role === "admin"}
+                onChange={() => setRole("admin")}
+                className="mr-2"
+              />
+              Admin
+            </label>
+          </div>
+
           <input
             type="text"
             placeholder="Full Name"
@@ -58,6 +89,18 @@ const Register = () => {
             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
             required
           />
+
+          {/* Admin Code Input */}
+          {role === "admin" && (
+            <input
+              type="text"
+              placeholder="Admin Secret Code"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
+              required
+            />
+          )}
 
           <button
             type="submit"

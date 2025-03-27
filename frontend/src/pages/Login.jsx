@@ -28,14 +28,14 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 ">
+      <div className="max-w-md w-full space-y-8 rounder-lg p-8 shadow-md bg-white">
         <h2 className="text-2xl font-bold text-center mb-4">
           Login to Your Account
         </h2>
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <input
             type="email"
             placeholder="Email Address"
@@ -53,6 +53,32 @@ const Login = () => {
             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
             required
           />
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-[#f46530] focus:ring-[#f46530] border-gray-300 rounded"
+              />
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
+                Remember me
+              </label>
+            </div>
+
+            <div className="text-sm">
+              <Link
+                to="/reset-password"
+                className="font-medium text-[#f46530] hover:text-[#e55420]"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          </div>
 
           <button
             type="submit"

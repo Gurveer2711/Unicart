@@ -9,14 +9,24 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (token) {
     return res
       .status(200)
-      .json({ message: "User is already logged in.Please logout first." });
+      .json({ message: "User is already logged in. Please log out first." });
   }
-  const { name, email, password } = req.body;
+
+  const { name, email, password, role } = req.body;
+
+  // Admin role check
+  if (role === "admin") {
+    const { secretAdminCode } = req.body;
+    if (secretAdminCode !== process.env.ADMIN_SECRET_CODE) {
+      return res.status(403).json({ message: "Invalid admin code" });
+    }
+  }
 
   if (!name || !email || !password) {
     res.status(400);
     throw new Error("Please add all fields");
   }
+
   // Check if user exists
   const userExists = await User.findOne({ email });
 
@@ -29,14 +39,17 @@ export const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    role,
   });
 
+  // Create user cart
   const cart = await Cart.create({ user: user._id, items: [] });
   user.cart = cart._id;
+
   const savedUser = await user.save();
   if (savedUser) {
-    res.status(200).json({
-      message: "Registration Successful.Please Log In.",
+    return res.status(200).json({
+      message: "Registration successful. Please log in.",
       redirect: "/api/auth/login",
     });
   } else {
@@ -84,40 +97,40 @@ export const loginUser = asyncHandler(async (req, res) => {
     sameSite: "Strict", // Prevents CSRF
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
+
   return res.status(200).json({
     message: "Login successful!",
-    user: user,
+    user: { id: user._id, name: user.name, email: user.email, role: user.role },
   });
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
-  // Clear the cookie with the same options that were used when setting it
   res.cookie("token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "Strict",
-    expires: new Date(0), // Set expiration to epoch time (immediately expired)
+    expires: new Date(0), // Expired immediately
   });
 
-  res.status(200).json({
-    message: "Logged out successfully",
-  });
+  return res.status(200).json({ message: "Logged out successfully" });
 });
 
 export const checkAuth = asyncHandler(async (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) {
-      res.status(401).json({ message: "Please log in." });
+      return res.status(401).json({ message: "Please log in." });
     }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select("-password");
+
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
 
-    res.json({ user });
+    return res.status(200).json({ user });
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid token" });
   }
 });
