@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { checkAuth } from "./features/authSlice.js";
 import LogoutPage from "./pages/LogoutPage.jsx";
+import CheckoutPage from "./pages/CheckoutPage.jsx";
 function Layout() {
 
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ function Layout() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/logout" element={<LogoutPage/>}/>
       </Routes>
       {!hideNavbarFooter && <Footer />}

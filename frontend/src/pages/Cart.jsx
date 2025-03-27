@@ -74,13 +74,13 @@ const Cart = () => {
 
           {/* Total Price */}
           <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Total:{" "}
               <span className="text-[#f46530]">${totalPrice.toFixed(2)}</span>
             </h2>
-            <button className="mt-4 w-full sm:w-auto bg-[#f46530] text-white px-6 py-3 rounded-lg hover:bg-[#da6236] transition-colors duration-300">
+            <NavLink to="/checkout" className="mt-4 w-full sm:w-auto bg-[#f46530] text-white px-6 py-3 rounded-lg hover:bg-[#da6236] transition-colors duration-300">
               Checkout
-            </button>
+            </NavLink>
           </div>
         </div>
       )}
