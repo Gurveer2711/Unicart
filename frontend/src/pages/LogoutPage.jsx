@@ -20,8 +20,7 @@ const LogoutPage = () => {
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
-      // The backend handles clearing the cookie
-      // State is updated by the reducer
+      
     } catch (err) {
       console.error("Logout failed:", err);
     }
