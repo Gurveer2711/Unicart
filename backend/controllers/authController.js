@@ -86,7 +86,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   });
   return res.status(200).json({
     message: "Login successful!",
-    user: { _id: user._id, email: user.email, role: user.role },
+    user: user,
   });
 });
 
@@ -99,9 +99,25 @@ export const logoutUser = asyncHandler(async (req, res) => {
     expires: new Date(0), // Set expiration to epoch time (immediately expired)
   });
 
-  res
-    .status(200)
-    .json({
-      message: "Logged out successfully",
-    });
+  res.status(200).json({
+    message: "Logged out successfully",
+  });
+});
+
+export const checkAuth = asyncHandler(async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(401).json({ message: "Please log in." });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    res.status(401).json({ message: "Invalid token" });
+  }
 });

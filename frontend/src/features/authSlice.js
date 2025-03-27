@@ -34,10 +34,26 @@ export const logoutUser = createAsyncThunk(
       const response = await api.post("/api/auth/logout");
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.error || "Logout failed.Please Try again.");
+      return rejectWithValue(
+        error.response?.data?.error || "Logout failed.Please Try again."
+      );
     }
   }
-)
+);
+
+export const checkAuth = createAsyncThunk(
+  "auth/checkAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get("/api/auth/check", {
+        withCredentials: true,
+      });
+      return data.user;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -82,6 +98,18 @@ const authSlice = createSlice({
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload; // Store the error message
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.userInfo = action.payload;
+        state.authChecked = true;
+      })
+      .addCase(checkAuth.rejected, (state,action) => {
+        state.userInfo = null;
+        state.error = action.payload;
+      })
+      .addCase(checkAuth.pending, (state) => {
+        state.userInfo = null;
+        state.error = null;
       });
   },
 });
