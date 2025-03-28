@@ -19,8 +19,10 @@ import { useDispatch } from "react-redux";
 import { checkAuth } from "./features/authSlice.js";
 import LogoutPage from "./pages/LogoutPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
-function Layout() {
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
+function Layout() {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -41,7 +43,10 @@ function Layout() {
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/logout" element={<LogoutPage/>}/>
+        <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        {/* <Route path="/reset-password" element={<ResetPasswordPage />} /> */}
       </Routes>
       {!hideNavbarFooter && <Footer />}
     </>

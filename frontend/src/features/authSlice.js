@@ -55,6 +55,34 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/api/auth/forgot-password", { email });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ newPassword ,confirmPassword}, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/api/auth/reset-password/:token", {
+        newPassword,
+        confirmPassword
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -103,13 +131,35 @@ const authSlice = createSlice({
         state.userInfo = action.payload;
         state.authChecked = true;
       })
-      .addCase(checkAuth.rejected, (state,action) => {
+      .addCase(checkAuth.rejected, (state, action) => {
         state.userInfo = null;
         state.error = action.payload;
       })
       .addCase(checkAuth.pending, (state) => {
         state.userInfo = null;
         state.error = null;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to send Link";
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to reset password";
       });
   },
 });
