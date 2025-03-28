@@ -3,86 +3,78 @@ import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import Cart from "../models/cartModel.js";
-import OTP from "../models/otpModel.js";
 import transporter from "../config/emailConfig.js";
 
-const generateOTP = () =>
-  Math.floor(100000 + Math.random() * 900000).toString();
-
-// Forgot Password - Send OTP
 export const forgotPassword = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  const user = await User.findOne({ email });
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send link via email
+    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: "5m",
+    });
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset Link",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px; text-align: center; background-color: #f9f9f9;">
+          <h2 style="color: #f46530;">Password Reset Request</h2>
+          <p style="font-size: 16px; color: #333;">You have requested to reset your password. Click the link below to proceed.</p>
+          <a href="${resetLink}" style="font-size: 18px; font-weight: bold; color: #fff; background: #f46530; padding: 10px 15px; border-radius: 8px; text-decoration: none; display: inline-block; margin: 15px 0;">Reset Password</a>
+          <p style="font-size: 14px; color: #666;">This link is valid for <strong>5 minutes</strong>. If you did not request this, please ignore this email.Do not share this link</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <p style="font-size: 12px; color: #888;">Need help? Contact our support team at <a href="mailto:support@unicart.com" style="color: #f46530; text-decoration: none;">support@unicart.com</a></p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return res
+      .status(200)
+      .json({ message: "Password reset link sent successfully." });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
-
-  // Generate and store OTP
-  const otp = generateOTP();
-  await OTP.create({ email, otp });
-
-  // Send OTP via email
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Password Reset OTP",
-    html: `
-    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px; text-align: center; background-color: #f9f9f9;">
-      <h2 style="color: #f46530;">Password Reset Request</h2>
-      <p style="font-size: 16px; color: #333;">
-        You have requested to reset your password. Use the OTP below to proceed.
-      </p>
-      <div style="font-size: 24px; font-weight: bold; color: #d95327; background: #fff; padding: 10px; border-radius: 8px; display: inline-block; margin: 15px 0;">
-        ${otp}
-      </div>
-      <p style="font-size: 14px; color: #666;">
-        This OTP is valid for <strong>5 minutes</strong>. If you did not request this, please ignore this email.
-      </p>
-      <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-      <p style="font-size: 12px; color: #888;">
-        Need help? Contact our support team at <a href="mailto:support@unicart.com" style="color: #f46530; text-decoration: none;">support@unicart.com</a>
-      </p>
-    </div>
-  `,
-  };
-  await transporter.sendMail(mailOptions);
-
-  res.status(200).json({ redirect:"/api/auth/verifyOtp" });
-});
-
-export const verifyOtp = asyncHandler(async (req, res) => {
-  const { otp } = req.body;
-  const otpRecord = await OTP.findOne({ otp });
-  if (!otpRecord) {
-    return res.status(400).json({ message: "Invalid or expired OTP." });
-  }
-  const { email } = otpRecord;
-  const user = User.findOne({ email });
-
-  console.log("User ID:", user._id);
-  await OTP.deleteOne({ otp });
-
-  return res
-    .status(200)
-    .json({ redirect: `/api/auth/resetPassword/${user._id}` });
 });
 
 export const resetPassword = asyncHandler(async (req, res) => {
-  const { newPassword, confirmPassword } = req.body;
-  if (newPassword !== confirmPassword) {
-    return res.status(401).json({ error: "Passwords do not match" });
-  }
-  const { id } = req.params;
-  const user = await User.findById(id);
-  if (!user) {
-    return res.status(404).json({ message: "User not found." });
-  }
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(newPassword, salt);
+  try {
+    const { newPassword, confirmPassword } = req.body;
+    const { token } = req.params;
 
-  await user.save();
-  return res.status(200).json({ redirect: "/api/auth/login" });
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ email: decoded.email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res
+      .status(200)
+      .json({ message: "Now you can login!", redirect: "/api/auth/login" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
 });
 
 export const registerUser = asyncHandler(async (req, res) => {
