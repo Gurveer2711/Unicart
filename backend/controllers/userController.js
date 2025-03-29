@@ -29,13 +29,8 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 
   if (user) {
     user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
     user.address = req.body.address || user.address;
     user.phone = req.body.phone || user.phone;
-    
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
 
     const updatedUser = await user.save();
 
