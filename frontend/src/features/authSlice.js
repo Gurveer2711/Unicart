@@ -67,18 +67,30 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
-
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async ({ newPassword ,confirmPassword}, { rejectWithValue }) => {
+  async ({ newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
       const response = await api.post("/api/auth/reset-password/:token", {
         newPassword,
-        confirmPassword
+        confirmPassword,
       });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
+    }
+  }
+);
+export const updateUserProfile = createAsyncThunk(
+  "user/updateProfile",
+  async (userData, { rejectWithValue }) => {
+    try {
+      console.log("Sending data: ", userData);
+      const response = await api.put("/api/user/profile", userData); // Send userData directly
+      console.log("Response:", response);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -160,6 +172,18 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to reset password";
+      })
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to update profile";
       });
   },
 });

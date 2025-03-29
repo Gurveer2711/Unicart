@@ -21,14 +21,18 @@ import LogoutPage from "./pages/LogoutPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 function Layout() {
   const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
-    dispatch(checkAuth()); // Call checkAuth on app start
-  }, [dispatch]);
-  const location = useLocation();
+    if (location.pathname !== "/profile") {
+      dispatch(checkAuth()); // Call checkAuth only when not on profile page
+    }
+  }, [dispatch, location.pathname]);
+
   const hideNavbarFooter =
     location.pathname === "/login" || location.pathname === "/register";
 
@@ -46,7 +50,7 @@ function Layout() {
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        {/* <Route path="/reset-password" element={<ResetPasswordPage />} /> */}
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       {!hideNavbarFooter && <Footer />}
     </>
