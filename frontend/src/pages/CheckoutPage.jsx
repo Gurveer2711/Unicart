@@ -91,8 +91,6 @@ const CheckoutPage = () => {
        totalPrice,
      };
 
-     console.log("🛒 Sending final order payload:", orderPayload);
-
      const resultAction = await dispatch(createOrder(orderPayload));
 
      if (createOrder.fulfilled.match(resultAction)) {

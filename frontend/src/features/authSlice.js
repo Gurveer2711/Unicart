@@ -27,6 +27,7 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+// Logout User
 export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
@@ -35,12 +36,13 @@ export const logoutUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Logout failed.Please Try again."
+        error.response?.data?.error || "Logout failed. Please try again."
       );
     }
   }
 );
 
+// Check Auth
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
@@ -55,6 +57,7 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+// Forgot Password
 export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async (email, { rejectWithValue }) => {
@@ -67,6 +70,7 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
+// Reset Password
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
   async ({ newPassword, confirmPassword }, { rejectWithValue }) => {
@@ -81,13 +85,13 @@ export const resetPassword = createAsyncThunk(
     }
   }
 );
+
+// Update Profile
 export const updateUserProfile = createAsyncThunk(
   "user/updateProfile",
   async (userData, { rejectWithValue }) => {
     try {
-      console.log("Sending data: ", userData);
-      const response = await api.put("/api/user/profile", userData); // Send userData directly
-      console.log("Response:", response);
+      const response = await api.put("/api/user/profile", userData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -99,12 +103,15 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
+    userInfo: null,
     loading: false,
     error: null,
+    authChecked: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
       })
@@ -116,6 +123,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
       })
@@ -127,17 +136,25 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
+      // Logout
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
-        state.error = null; // Clear any previous errors
+        state.error = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        state.user = null; // Clear user data
+        state.user = null;
         state.loading = false;
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload; // Store the error message
+        state.error = action.payload;
+      })
+
+      // Check Auth
+      .addCase(checkAuth.pending, (state) => {
+        state.userInfo = null;
+        state.error = null;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.userInfo = action.payload;
@@ -147,10 +164,8 @@ const authSlice = createSlice({
         state.userInfo = null;
         state.error = action.payload;
       })
-      .addCase(checkAuth.pending, (state) => {
-        state.userInfo = null;
-        state.error = null;
-      })
+
+      // Forgot Password
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -160,8 +175,10 @@ const authSlice = createSlice({
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "Failed to send Link";
+        state.error = action.payload?.message || "Failed to send link";
       })
+
+      // Reset Password
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -173,6 +190,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload?.message || "Failed to reset password";
       })
+
+      // Update Profile
       .addCase(updateUserProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
