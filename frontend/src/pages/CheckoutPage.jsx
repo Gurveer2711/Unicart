@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchCart } from "../features/cartSlice";
-import { loadStripe } from "@stripe/stripe-js";
-import { CreditCard, Truck, Shield, ArrowLeft } from "lucide-react";
+import { Truck, Shield, ArrowLeft } from "lucide-react";
+import { createOrder } from "../features/orderSlice";
+import { clearCart } from "../features/cartSlice";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
@@ -13,27 +14,25 @@ const CheckoutPage = () => {
   const { items, loading: cartLoading } = useSelector((state) => state.cart);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    address: "",
+    street: "",
     city: "",
-    postalCode: "",
+    state:"",
+    zipCode: "",
     country: "",
-  });
+  }); 
 
   useEffect(() => {
-    if (!userInfo) {
-      navigate("/login");
-    } else {
-      dispatch(fetchCart());
-    }
-  }, [userInfo, navigate, dispatch]);
+    dispatch(fetchCart());
+  }, [dispatch]);
 
   useEffect(() => {
     if (userInfo) {
       setFormData({
-        address: userInfo.address || "",
-        city: userInfo.city || "",
-        postalCode: userInfo.postalCode || "",
-        country: userInfo.country || "",
+        street: userInfo.address.street || "",
+        city: userInfo.address.city || "",
+        state: userInfo.address.state || "",
+        zipCode: userInfo.address.zipCode || "",
+        country: userInfo.address.country || "",
       });
     }
   }, [userInfo]);
@@ -52,37 +51,66 @@ const CheckoutPage = () => {
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   if (loading) return;
+   setLoading(true);
 
-    try {
-      const checkoutResponse = await fetch("/api/checkout/create-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items,
-          shippingAddress: formData,
-        }),
-      });
+   try {
+     const orderItems = items.map((item) => ({
+       title: item.productId.title,
+       quantity: item.quantity,
+       image: item.productId.image,
+       price: item.productId.price,
+       product: item.productId._id,
+     }));
 
-      if (!checkoutResponse.ok) {
-        const errorData = await checkoutResponse.json();
-        throw new Error(
-          errorData.message || "Could not create checkout session"
-        );
-      }
+     // ✅ Match the new nested shippingAddress.address
+     const shippingAddress = {
+       address: {
+         street: formData.street,
+         city: formData.city,
+         state: formData.state,
+         zipCode: formData.zipCode,
+         country: formData.country,
+       },
+     };
 
-      const { sessionId } = await checkoutResponse.json();
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-      await stripe.redirectToCheckout({ sessionId });
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
-  };
+     const itemsPrice = calculateTotal();
+     const shippingPrice = 0;
+     const taxPrice = Number((itemsPrice * 0.1).toFixed(2));
+     const totalPrice = Number((itemsPrice + taxPrice).toFixed(2));
+
+     const orderPayload = {
+       user:userInfo._id,
+       orderItems,
+       shippingAddress,
+       itemsPrice,
+       shippingPrice,
+       taxPrice,
+       totalPrice,
+     };
+
+     console.log("🛒 Sending final order payload:", orderPayload);
+
+     const resultAction = await dispatch(createOrder(orderPayload));
+
+     if (createOrder.fulfilled.match(resultAction)) {
+       dispatch(clearCart());
+       navigate("/profile");
+     } else {
+       throw new Error(
+         resultAction.payload?.message || "Failed to create order"
+       );
+     }
+   } catch (error) {
+     console.error("❌ Order creation error:", error.message);
+   } finally {
+     setLoading(false);
+   }
+ };
+
+
 
   if (cartLoading) {
     return (
@@ -156,15 +184,15 @@ const CheckoutPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address
+                      Street
                     </label>
                     <input
                       type="text"
-                      name="address"
-                      value={formData.address}
+                      name="street"
+                      value={formData.street}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f46530] focus:border-transparent transition-colors"
-                      placeholder="Enter your address"
+                      placeholder="Enter your street address"
                       required
                     />
                   </div>
@@ -183,15 +211,28 @@ const CheckoutPage = () => {
                       required
                     />
                   </div>
-
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      name="say"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f46530] focus:border-transparent transition-colors"
+                      placeholder="Enter your address"
+                      required
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Postal Code
                     </label>
                     <input
                       type="text"
-                      name="postalCode"
-                      value={formData.postalCode}
+                      name="zipCode"
+                      value={formData.zipCode}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f46530] focus:border-transparent transition-colors"
                       placeholder="Enter postal code"
@@ -217,7 +258,7 @@ const CheckoutPage = () => {
 
                 <div className="flex items-center space-x-4 text-sm text-gray-600">
                   <Shield className="w-5 h-5" />
-                  <span>Your payment information is secure and encrypted</span>
+                  <span>Your information is secure and encrypted</span>
                 </div>
 
                 <button
@@ -232,8 +273,8 @@ const CheckoutPage = () => {
                     </>
                   ) : (
                     <>
-                      <CreditCard className="w-5 h-5" />
-                      <span>Proceed to Payment</span>
+                      <div className="w-5 h-5" />
+                      <span>Proceed to Order</span>
                     </>
                   )}
                 </button>

@@ -7,6 +7,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
@@ -38,21 +39,13 @@ app.use(
 );
 
 const limiter = rateLimit({
-  windowMs: 5 * 1000, // 5 seconds
-  max: 10, // Limit each IP to 5 requests per 5 seconds
+  windowMs: 1 * 1000, // 5 seconds
+  max: 20, // Limit each IP to 5 requests per 1 seconds
   message: { error: "Too many requests, please try again later." },
   headers: true, // Send `RateLimit-*` headers
 });
 
-// Special handling for Stripe webhook endpoint to receive raw body
-app.post(
-  "/api/payment/webhook",
-  express.raw({ type: "application/json" }),
-  (req, res, next) => {
-    req.rawBody = req.body;
-    next();
-  }
-);
+
 
 app.use(limiter);
 app.use(express.json());
@@ -67,6 +60,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/uploads", express.static("uploads")); // Serve local uploads
 app.use("/api/image", imageRoutes);
+app.use("/api/orders", orderRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
