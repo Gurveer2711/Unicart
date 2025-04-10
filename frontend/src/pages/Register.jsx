@@ -39,7 +39,7 @@ const Register = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Role Selection */}
           <div className="flex justify-center gap-4">
-            <label className="flex items-center">
+            {/* <label className="flex items-center">
               <input
                 type="radio"
                 name="role"
@@ -49,8 +49,8 @@ const Register = () => {
                 className="mr-2"
               />
               User
-            </label>
-            <label className="flex items-center">
+            </label> */}
+            {/* <label className="flex items-center">
               <input
                 type="radio"
                 name="role"
@@ -60,7 +60,7 @@ const Register = () => {
                 className="mr-2"
               />
               Admin
-            </label>
+            </label> */}
           </div>
 
           <input

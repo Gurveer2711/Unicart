@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updateUserProfile } from "../features/authSlice";
+import { updateUserProfile, logoutUser } from "../features/authSlice";
 import { fetchUserOrders } from "../features/orderSlice";
 
 const ProfilePage = () => {
@@ -83,6 +83,11 @@ const ProfilePage = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    navigate("/login");
+  };
+
   if (!userInfo) return null;
 
   return (
@@ -90,7 +95,7 @@ const ProfilePage = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex gap-6">
           {/* Sidebar */}
-          <div className="w-64 bg-white shadow rounded-lg p-4">
+          <div className="w-64 bg-white shadow rounded-lg p-4 relative min-h-[300px]">
             <div className="space-y-2">
               <button
                 onClick={() => setActiveTab("profile")}
@@ -111,6 +116,16 @@ const ProfilePage = () => {
                 }`}
               >
                 My Orders
+              </button>
+            </div>
+
+            {/*    button */}
+            <div className="absolute bottom-4 left-4 right-4">
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 rounded-md text-red-600 hover:bg-red-100"
+              >
+                Logout
               </button>
             </div>
           </div>

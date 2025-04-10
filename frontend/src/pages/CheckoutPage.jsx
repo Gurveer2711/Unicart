@@ -137,7 +137,7 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mt-20">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center mb-8">
@@ -153,25 +153,25 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-8">
-            {/* Progress Steps */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-[#f46530] text-white rounded-full flex items-center justify-center">
-                    1
-                  </div>
-                  <span className="ml-3 font-medium">Shipping</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
-                    2
-                  </div>
-                  <span className="ml-3 font-medium text-gray-500">
-                    Payment
-                  </span>
-                </div>
-              </div>
-            </div>
+            {/* Progress Steps
+            // <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+            //   <div className="flex items-center justify-between">
+            //     <div className="flex items-center">
+            //       <div className="w-8 h-8 bg-[#f46530] text-white rounded-full flex items-center justify-center">
+            //         1
+            //       </div>
+            //       <span className="ml-3 font-medium">Shipping</span>
+            //     </div>
+            //     <div className="flex items-center">
+            //       <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
+            //         2
+            //       </div>
+            //       <span className="ml-3 font-medium text-gray-500">
+            //         Payment
+            //       </span>
+            //     </div>
+            //   </div>
+            // </div> */}
 
             {/* Shipping Form */}
             <div className="bg-white rounded-lg shadow-sm p-6">
