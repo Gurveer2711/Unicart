@@ -12,7 +12,6 @@ const ProfilePage = () => {
     loading: profileLoading,
     error: profileError,
   } = useSelector((state) => state.auth);
-
   const {
     orders,
     loading: ordersLoading,
@@ -35,9 +34,7 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
-    if (!userInfo) {
-      navigate("/login");
-    }
+    if (!userInfo) navigate("/login");
   }, [userInfo, navigate]);
 
   useEffect(() => {
@@ -59,13 +56,12 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (activeTab === "orders") {
-      dispatch(fetchUserOrders());
+      dispatch(fetchUserOrders(userInfo._id));
     }
   }, [dispatch, activeTab]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name.startsWith("address.")) {
       const field = name.split(".")[1];
       setFormData((prev) => ({
@@ -73,10 +69,7 @@ const ProfilePage = () => {
         address: { ...prev.address, [field]: value },
       }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -90,12 +83,10 @@ const ProfilePage = () => {
     }
   };
 
-  if (!userInfo) {
-    return null;
-  }
+  if (!userInfo) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 mt-20 ">
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 mt-20">
       <div className="max-w-7xl mx-auto">
         <div className="flex gap-6">
           {/* Sidebar */}
@@ -106,7 +97,7 @@ const ProfilePage = () => {
                 className={`w-full text-left px-4 py-2 rounded-md ${
                   activeTab === "profile"
                     ? "text-orange-700"
-                    : " hover:bg-gray-100"
+                    : "hover:bg-gray-100"
                 }`}
               >
                 Profile Information
@@ -160,7 +151,7 @@ const ProfilePage = () => {
                         value={formData.name}
                         onChange={handleChange}
                         disabled={!isEditing}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
                       />
                     </div>
 
@@ -187,7 +178,7 @@ const ProfilePage = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         disabled={!isEditing}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
                       />
                     </div>
 
@@ -196,82 +187,60 @@ const ProfilePage = () => {
                         Address
                       </h3>
                       <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            Street
-                          </label>
+                        <input
+                          type="text"
+                          name="address.street"
+                          value={formData.address.street}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                          placeholder="Street"
+                          className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
+                        />
+                        <div className="grid grid-cols-2 gap-4">
                           <input
                             type="text"
-                            name="address.street"
-                            value={formData.address.street}
+                            name="address.city"
+                            value={formData.address.city}
                             onChange={handleChange}
                             disabled={!isEditing}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
+                            placeholder="City"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
+                          />
+                          <input
+                            type="text"
+                            name="address.state"
+                            value={formData.address.state}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="State"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
                           />
                         </div>
-
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              City
-                            </label>
-                            <input
-                              type="text"
-                              name="address.city"
-                              value={formData.address.city}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              State
-                            </label>
-                            <input
-                              type="text"
-                              name="address.state"
-                              value={formData.address.state}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              Zip Code
-                            </label>
-                            <input
-                              type="text"
-                              name="address.zipCode"
-                              value={formData.address.zipCode}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                              Country
-                            </label>
-                            <input
-                              type="text"
-                              name="address.country"
-                              value={formData.address.country}
-                              onChange={handleChange}
-                              disabled={!isEditing}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100"
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            name="address.zipCode"
+                            value={formData.address.zipCode}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="Zip Code"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
+                          />
+                          <input
+                            type="text"
+                            name="address.country"
+                            value={formData.address.country}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                            placeholder="Country"
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:ring-orange-500 disabled:bg-gray-100"
+                          />
                         </div>
                       </div>
                     </div>
 
                     {isEditing && (
-                      <div className="flex justify-end space-x-3">
+                      <div className="flex justify-end gap-3 pt-4">
                         <button
                           type="button"
                           onClick={() => setIsEditing(false)}
@@ -301,7 +270,8 @@ const ProfilePage = () => {
                   <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     {ordersError}
                   </div>
-                  )}
+                )}
+
                 {ordersLoading ? (
                   <div className="text-center py-8">Loading orders...</div>
                 ) : orders.length === 0 ? (
@@ -309,53 +279,63 @@ const ProfilePage = () => {
                     No orders found
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {orders.map((order) => (
-                      <div key={order._id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-2">
+                      <div
+                        key={order._id}
+                        className="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md transition"
+                      >
+                        <div className="flex justify-between items-center mb-4">
                           <div>
-                            <p className="font-medium">
+                            <p className="text-sm text-gray-500">
                               Order #{order._id.slice(-6)}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs text-gray-400">
                               {new Date(order.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                           <span
-                            className={`px-2 py-1 rounded-full text-sm ${
-                              order.isDelivered
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              order.status === "delivered"
+                                ? "bg-green-100 text-green-700"
+                                : order.status === "processing"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-gray-100 text-gray-600"
                             }`}
                           >
-                            {order.isDelivered ? "Delivered" : "Processing"}
+                            {order.status.charAt(0).toUpperCase() +
+                              order.status.slice(1)}
                           </span>
                         </div>
-                        <div className="space-y-2">
+
+                        <div className="divide-y">
                           {order.orderItems.map((item) => (
-                            <div
-                              key={item._id}
-                              className="flex justify-between items-center"
-                            >
-                              <div>
-                                <p className="font-medium">{item.name}</p>
+                            <div key={item._id} className="flex py-3 gap-4">
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-16 h-16 object-contain rounded-lg"
+                              />
+                              <div className="flex-1">
+                                <h3 className="font-medium">{item.title}</h3>
                                 <p className="text-sm text-gray-500">
-                                  Quantity: {item.qty}
+                                  Qty: {item.quantity}
                                 </p>
                               </div>
-                              <p className="font-medium">
+                              <p className="text-sm font-medium">
                                 ${item.price.toFixed(2)}
                               </p>
                             </div>
                           ))}
-                          <div className="border-t pt-2 mt-2">
-                            <div className="flex justify-between items-center">
-                              <p className="font-medium">Total Amount</p>
-                              <p className="font-medium">
-                                ${order.totalPrice.toFixed(2)}
-                              </p>
-                            </div>
-                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-4 pt-4 border-t">
+                          <span className="text-sm font-semibold text-gray-600">
+                            Total
+                          </span>
+                          <span className="text-lg font-bold text-gray-900">
+                            ${order.totalPrice.toFixed(2)}
+                          </span>
                         </div>
                       </div>
                     ))}

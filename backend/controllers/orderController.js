@@ -65,12 +65,15 @@ export const getOrderById = asyncHandler(async (req, res) => {
 // @access  Private
 export const getMyOrders = asyncHandler(async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id });
+    const userId = req.body.userId || req.user._id; // fallback to token if not provided
+
+    const orders = await Order.find({ user: userId });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // @desc    Get all orders (Admin)
 // @route   GET /api/orders

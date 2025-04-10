@@ -19,17 +19,17 @@ export const createOrder = createAsyncThunk(
 // Get orders of the logged-in user
 export const fetchUserOrders = createAsyncThunk(
   "orders/fetchUserOrders",
-  async (_, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
     try {
-      const { data } = await api.get("/api/orders/myorders");
-      console.log("Data:", data);
+      const { data } = await api.post("/api/orders/myorders", { userId });
       return data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to fetch orders" }
+      );
     }
   }
 );
-
 const orderSlice = createSlice({
   name: "orders",
   initialState: {
