@@ -215,7 +215,7 @@ const CheckoutPage = () => {
                     </label>
                     <input
                       type="text"
-                      name="say"
+                      name="state"
                       value={formData.state}
                       onChange={handleChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f46530] focus:border-transparent transition-colors"

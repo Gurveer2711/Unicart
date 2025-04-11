@@ -22,11 +22,11 @@
         match: [/^\d{10}$/, "Please enter a valid 10-digit phone number"],
       },
       address: {
-        street: { type: String },
-        city: { type: String },
-        state: { type: String },
-        zipCode: { type: String },
-        country: { type: String },
+        street: { type: String,default:"" },
+        city: { type: String,default:"" },
+        state: { type: String,default:"" },
+        zipCode: { type: String,default:"" },
+        country: { type: String,default:"" },
       },
       role: {
         type: String,

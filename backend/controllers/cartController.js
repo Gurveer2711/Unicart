@@ -40,10 +40,12 @@ export const addItemToCart = asyncHandler(async (req, res) => {
 
   product.stocksLeft -= quantity;
   await product.save();
-
-  cart.totalAmount = cart.items.reduce((total, item) => {
-    return total + item.quantity * product.price;
-  }, 0);
+  await cart.populate("items.productId");
+  cart.totalAmount = Number(
+    cart.items
+      .reduce((total, item) => total + item.quantity * item.productId.price, 0)
+      .toFixed(2)
+  );
 
   await cart.save();
 
