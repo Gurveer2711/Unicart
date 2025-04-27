@@ -11,6 +11,7 @@
         type: String,
         required: true,
         unique: true,
+        lowercase: true,
       },
       password: {
         type: String,
@@ -22,19 +23,19 @@
         match: [/^\d{10}$/, "Please enter a valid 10-digit phone number"],
       },
       address: {
-        street: { type: String,default:"" },
-        city: { type: String,default:"" },
-        state: { type: String,default:"" },
-        zipCode: { type: String,default:"" },
-        country: { type: String,default:"" },
+        street: { type: String, default: "" },
+        city: { type: String, default: "" },
+        state: { type: String, default: "" },
+        zipCode: { type: String, default: "" },
+        country: { type: String, default: "" },
       },
       role: {
         type: String,
-          default: "user",
+        default: "user",
       },
       cart: {
         type: mongoose.Schema.Types.ObjectId,
-        ref : "Cart"
+        ref: "Cart",
       },
       orders: {
         type: mongoose.Schema.Types.ObjectId,
