@@ -21,9 +21,7 @@ export const addToCart = createAsyncThunk(
   "cart/add",
   async ({ productId, quantity }, { rejectWithValue, dispatch }) => {
     try {
-      // Optimistic update
       dispatch(cartSlice.actions.setItemLoading({ productId, loading: true }));
-
       const response = await api.post("/api/cart/add", { productId, quantity });
       if (!response.data) {
         throw new Error("Received undefined data from API");
@@ -56,7 +54,8 @@ export const removeFromCart = createAsyncThunk(
       dispatch(cartSlice.actions.setItemLoading({ productId, loading: true }));
 
       // Optimistic removal - remove item from UI immediately
-      dispatch(cartSlice.actions.optimisticRemoveItem({ productId }));
+      // We'll comment this out to prevent premature removal
+      // dispatch(cartSlice.actions.optimisticRemoveItem({ productId }))
 
       const response = await api.post("/api/cart/remove", { productId });
 
@@ -66,7 +65,7 @@ export const removeFromCart = createAsyncThunk(
         throw new Error("Received undefined data from API");
       }
 
-      return response.data;
+      return { ...response.data, removedProductId: productId };
     } catch (error) {
       // On error, refresh the cart to ensure UI is in sync with server
       dispatch(fetchCart());
@@ -78,7 +77,6 @@ export const removeFromCart = createAsyncThunk(
     }
   }
 );
-
 // Clear cart
 export const clearCart = createAsyncThunk(
   "cart/clear",
@@ -99,12 +97,11 @@ const cartSlice = createSlice({
     totalAmount: 0,
     totalItems: 0,
     loading: false,
-    itemsLoading: {}, // Track loading state per item
+    itemsLoading: {},
     error: null,
-    initialized: false, // Track if cart has been initialized
+    initialized: false,
   },
   reducers: {
-    // Add a reducer to track loading state for individual items
     setItemLoading: (state, action) => {
       const { productId, loading } = action.payload;
       state.itemsLoading = {
@@ -112,16 +109,12 @@ const cartSlice = createSlice({
         [productId]: loading,
       };
     },
-    // Optimistic removal of item
     optimisticRemoveItem: (state, action) => {
       const { productId } = action.payload;
-      // Filter out the item being removed
       const removedItem = state.items.find(
         (item) => item.productId._id === productId
       );
-
       if (removedItem) {
-        // Update total amount and items count
         state.totalAmount -= removedItem.productId.price * removedItem.quantity;
         state.items = state.items.filter(
           (item) => item.productId._id !== productId
@@ -140,38 +133,29 @@ const cartSlice = createSlice({
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
         state.initialized = true;
-
-        // Ensure we have valid data
         if (action.payload && Array.isArray(action.payload.items)) {
           state.items = [...action.payload.items];
           state.totalAmount = action.payload.totalAmount || 0;
           state.totalItems = state.items.length;
         } else {
-          // Handle case where API returns unexpected data format
-          state.items = [];
-          state.totalAmount = 0;
-          state.totalItems = 0;
+          // Do NOT clear items if response is invalid!
           state.error = "Invalid response format from server";
         }
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to fetch cart";
-        // Don't clear items on error to maintain last known state
       })
-
       // Add to Cart
       .addCase(addToCart.pending, (state) => {
         state.error = null;
       })
       .addCase(addToCart.fulfilled, (state, action) => {
         state.loading = false;
-
         if (!action.payload || !action.payload.items) {
           state.error = "Invalid cart response";
           return;
         }
-
         state.items = [...action.payload.items];
         state.totalAmount = action.payload.totalAmount || 0;
         state.totalItems = state.items.length;
@@ -180,28 +164,36 @@ const cartSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to add item to cart";
       })
-
       // Remove from Cart
       .addCase(removeFromCart.pending, (state) => {
         state.error = null;
       })
       .addCase(removeFromCart.fulfilled, (state, action) => {
-        state.loading = false;
-
-        // Only update state if we have valid data
-        if (action.payload && Array.isArray(action.payload.items)) {
-          state.items = [...action.payload.items];
-          state.totalAmount = action.payload.totalAmount || 0;
-          state.totalItems = state.items.length;
-        }
-        // If invalid data, we've already dispatched fetchCart in the thunk
-      })
+  state.loading = false
+  
+  // If we have the removedProductId, remove that specific item
+  if (action.payload.removedProductId) {
+    const productIdToRemove = action.payload.removedProductId;
+    state.items = state.items.filter(item => item.productId._id !== productIdToRemove);
+    
+    // Recalculate totals
+    state.totalItems = state.items.length;
+    state.totalAmount = state.items.reduce(
+      (total, item) => total + (item.productId.price * item.quantity), 
+      0
+    );
+  } 
+  // If we have a valid items array from the server, use that
+  else if (action.payload && Array.isArray(action.payload.items)) {
+    state.items = [...action.payload.items];
+    state.totalAmount = action.payload.totalAmount || 0;
+    state.totalItems = state.items.length;
+  }
+})
       .addCase(removeFromCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to remove item from cart";
-        // We've already dispatched fetchCart in the thunk to refresh the state
       })
-
       // Clear Cart
       .addCase(clearCart.pending, (state) => {
         state.loading = true;
