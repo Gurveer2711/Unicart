@@ -67,9 +67,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
     user.password = await bcrypt.hash(newPassword, salt);
     await user.save();
 
-    return res
-      .status(200)
-      .json({ message: "Now you can login!", redirect: "/api/auth/login" });
+    return res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
     return res
       .status(500)
@@ -86,14 +84,6 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 
   const { name, email, password, role } = req.body;
-
-  // Admin role check
-  if (role === "admin") {
-    const { secretAdminCode } = req.body;
-    if (secretAdminCode !== process.env.ADMIN_SECRET_CODE) {
-      return res.status(403).json({ message: "Invalid admin code" });
-    }
-  }
 
   if (!name || !email || !password) {
     res.status(400);
@@ -122,8 +112,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const savedUser = await user.save();
   if (savedUser) {
     return res.status(200).json({
-      message: "Registration successful. Please log in.",
-      redirect: "/api/auth/login",
+      message: "Registration successful",
     });
   } else {
     res.status(400);
@@ -184,7 +173,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
     sameSite: "Strict",
     expires: new Date(0), // Expired immediately
   });
-
+  
   return res.status(200).json({ message: "Logged out successfully" });
 });
 
