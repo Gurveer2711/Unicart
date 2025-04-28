@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -13,19 +15,16 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Login with credentials
       await dispatch(loginUser({ email, password })).unwrap();
-
-      // The backend uses HttpOnly cookies, so we don't need to store the token
-      // The cookie will be automatically sent with subsequent requests
-
-      // Navigate after successful login
       navigate("/");
     } catch (error) {
-      // Error is already handled by the Redux slice
       console.error("Login failed:", error);
     }
   };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 ">
@@ -45,31 +44,27 @@ const Login = () => {
             required
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300 pr-10"
+              required
+            />
+            <span
+              className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-gray-500"
+              onClick={togglePasswordVisibility}
+              tabIndex={0}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              role="button"
+            >
+              {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+            </span>
+          </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-[#f46530] focus:ring-[#f46530] border-gray-300 rounded"
-              />
-              <label
-                htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
-              >
-                Remember me
-              </label>
-            </div>
-
+          <div className="flex items-center justify-end">
             <div className="text-sm">
               <Link
                 to="/forgot-password"

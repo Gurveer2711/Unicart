@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
   const [role, setRole] = useState("user"); // Default role
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [adminCode, setAdminCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
@@ -17,15 +18,17 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userData = { name, email, password, role };
-    if (role === "admin") {
-      userData.secretAdminCode = adminCode;
-    }
+
     try {
       await dispatch(registerUser(userData)).unwrap();
       navigate("/login");
     } catch (error) {
       console.error("Registration failed:", error);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -37,32 +40,6 @@ const Register = () => {
         {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Role Selection */}
-          <div className="flex justify-center gap-4">
-            {/* <label className="flex items-center">
-              <input
-                type="radio"
-                name="role"
-                value="user"
-                checked={role === "user"}
-                onChange={() => setRole("user")}
-                className="mr-2"
-              />
-              User
-            </label> */}
-            {/* <label className="flex items-center">
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                checked={role === "admin"}
-                onChange={() => setRole("admin")}
-                className="mr-2"
-              />
-              Admin
-            </label> */}
-          </div>
-
           <input
             type="text"
             placeholder="Full Name"
@@ -81,26 +58,25 @@ const Register = () => {
             required
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
-            required
-          />
-
-          {/* Admin Code Input */}
-          {role === "admin" && (
+          <div className="relative">
             <input
-              type="text"
-              placeholder="Admin Secret Code"
-              value={adminCode}
-              onChange={(e) => setAdminCode(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300 pr-10"
               required
             />
-          )}
+            <span
+              className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-gray-500"
+              onClick={togglePasswordVisibility}
+              tabIndex={0}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              role="button"
+            >
+              {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+            </span>
+          </div>
 
           <button
             type="submit"
