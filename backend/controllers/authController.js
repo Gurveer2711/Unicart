@@ -39,7 +39,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     await transporter.sendMail(mailOptions);
     return res
       .status(200)
-      .json({ message: "Password reset link sent successfully." });
+      .json({ message: "Password reset link is sent to email." });
   } catch (error) {
     return res
       .status(500)
@@ -56,15 +56,24 @@ export const resetPassword = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "Passwords do not match" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ email: decoded.email });
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        return res
+          .status(400)
+          .json({ error: "Reset link has expired. Please request a new one." });
+      }
+      return res.status(400).json({ error: "Invalid reset token." });
+    }
 
+    const user = await User.findOne({ email: decoded.email });
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    user.password = newPassword;  
     await user.save();
 
     return res.status(200).json({ message: "Password reset successful" });
@@ -132,12 +141,12 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (!email || !password) {
     return res.status(401).json({ error: "Email and password are required" });
   }
-
+  
   const user = await User.findOne({ email });
   if (!user) {
     return res.status(401).json({ error: "Invalid email or password" });
   }
-
+  
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(401).json({ error: "Invalid email or password" });
@@ -173,7 +182,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
     sameSite: "Strict",
     expires: new Date(0), // Expired immediately
   });
-  
+
   return res.status(200).json({ message: "Logged out successfully" });
 });
 
