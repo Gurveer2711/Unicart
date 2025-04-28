@@ -1,18 +1,32 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "../features/authSlice";
 
 const ResetPassword = () => {
-  const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loading, error, message } = useSelector((state) => state.auth);
+  const { token } = useParams();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(resetPassword({ newPassword, confirmPassword, token }));
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    try {
+      const result = await dispatch(
+        resetPassword({ token, newPassword, confirmPassword })
+      ).unwrap();
+      if (result.message) {
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Failed to reset password:", error);
+    }
   };
 
   return (
@@ -30,6 +44,7 @@ const ResetPassword = () => {
             onChange={(e) => setNewPassword(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
             required
+            minLength={6}
           />
 
           <input
@@ -39,6 +54,7 @@ const ResetPassword = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300"
             required
+            minLength={6}
           />
 
           <button
