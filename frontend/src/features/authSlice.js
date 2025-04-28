@@ -73,15 +73,17 @@ export const forgotPassword = createAsyncThunk(
 // Reset Password
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async ({ newPassword, confirmPassword }, { rejectWithValue }) => {
+  async ({ token, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
-      const response = await api.post("/api/auth/reset-password/:token", {
+      const response = await api.post(`/api/auth/reset-password/${token}`, {
         newPassword,
         confirmPassword,
       });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to reset password"
+      );
     }
   }
 );
@@ -106,18 +108,28 @@ const authSlice = createSlice({
     userInfo: null,
     loading: false,
     error: null,
+    message: null,
     authChecked: false,
   },
-  reducers: {},
+  reducers: {
+    clearMessage: (state) => {
+      state.message = null;
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
+        state.error = null;
+        state.message = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.message = action.payload.message;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -127,10 +139,13 @@ const authSlice = createSlice({
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
+        state.error = null;
+        state.message = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
+        state.message = action.payload.message;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -141,10 +156,12 @@ const authSlice = createSlice({
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.message = null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.loading = false;
+        state.message = "Logged out successfully";
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.loading = false;
@@ -169,9 +186,11 @@ const authSlice = createSlice({
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.message = null;
       })
-      .addCase(forgotPassword.fulfilled, (state) => {
+      .addCase(forgotPassword.fulfilled, (state, action) => {
         state.loading = false;
+        state.message = action.payload.message;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
@@ -182,9 +201,11 @@ const authSlice = createSlice({
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.message = null;
       })
-      .addCase(resetPassword.fulfilled, (state) => {
+      .addCase(resetPassword.fulfilled, (state, action) => {
         state.loading = false;
+        state.message = action.payload.message;
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
@@ -195,10 +216,12 @@ const authSlice = createSlice({
       .addCase(updateUserProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.message = null;
       })
       .addCase(updateUserProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.message = "Profile updated successfully";
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.loading = false;
@@ -207,4 +230,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { clearMessage, clearError } = authSlice.actions;
 export default authSlice.reducer;
