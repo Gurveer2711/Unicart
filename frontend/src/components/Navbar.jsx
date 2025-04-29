@@ -74,8 +74,15 @@ const Navbar = () => {
               )}
             </NavLink>
           ) : (
-            <NavLink to="/login" className="relative">
-              <LogIn className="w-7 h-7 text-black hover:text-[#f46530]" />
+            <NavLink
+              to="/login"
+              className={({ isActive }) =>
+                `relative text-lg font-semibold text-black after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f46530] after:transition-all after:duration-300 ${
+                  isActive ? "after:w-full text-[#f46530]" : "after:w-0"
+                } hover:after:w-full`
+              }
+            >
+              Login
             </NavLink>
           )}
         </div>
