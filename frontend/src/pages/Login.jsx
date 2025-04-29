@@ -10,6 +10,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
+  const {userInfo} = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -24,6 +25,10 @@ const Login = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
+  }
+  if (userInfo) {
+    alert("Please first logout");
+    navigate("/profile");
   }
 
   return (

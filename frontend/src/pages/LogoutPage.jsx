@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../features/authSlice";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,14 +6,21 @@ import { Link, useNavigate } from "react-router-dom";
 const LogoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [counter, setCounter] = useState(3);
   const { userInfo, loading, error } = useSelector((state) => state.auth);
 
   const logoutSuccess = !userInfo;
 
   useEffect(() => {
     if (logoutSuccess) {
-      const timer = setTimeout(() => navigate("/"), 3000); // Redirect after 3 seconds
-      return () => clearTimeout(timer);
+      const interval = setInterval(() => {
+        setCounter((prev) => prev - 1);
+      }, 1000);
+      const timeout = setTimeout(() => navigate("/"), 3000); // Redirect after 3 seconds
+      return () => {
+        clearTimeout(timeout);
+        clearInterval(interval);
+      };
     }
   }, [logoutSuccess, navigate]);
 
@@ -40,7 +47,7 @@ const LogoutPage = () => {
             <div className="mt-4">
               <p className="text-center text-md text-gray-600">
                 You have been successfully logged out. You will be redirected to
-                the homepage in 3 seconds.
+                the homepage in {counter} seconds.
               </p>
               <div className="flex justify-center mt-4">
                 <Link
