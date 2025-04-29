@@ -28,17 +28,25 @@ function Layout() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname !== "/profile") {
-      dispatch(checkAuth()); // Call checkAuth only when not on profile page
+    const includedPaths = [
+      "/profile",
+      "/checkout",
+      "/cart",
+      "/",
+      "/checkout",
+      "/products",
+      "/product/:id",
+    ];
+    if (includedPaths.includes(location.pathname)) {
+      dispatch(checkAuth());
     }
   }, [dispatch, location.pathname]);
 
-  const hideNavbarFooter =
-    location.pathname === "/login" || location.pathname === "/register";
+  
 
   return (
     <>
-      {!hideNavbarFooter && <Navbar />}
+      <Navbar />
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -52,7 +60,7 @@ function Layout() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
-      {!hideNavbarFooter && <Footer />}
+      <Footer />
     </>
   );
 }

@@ -9,14 +9,14 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [role, setRole] = useState("");
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userData = { name, email, password, role };
+    const userData = { name, email, password,role };
 
     try {
       await dispatch(registerUser(userData)).unwrap();
