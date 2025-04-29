@@ -38,7 +38,6 @@ export const addItemToCart = asyncHandler(async (req, res) => {
     cart.items.push({ productId, quantity });
   }
 
-  product.stocksLeft -= quantity;
   await product.save();
   await cart.populate("items.productId");
   cart.totalAmount = Number(
@@ -86,7 +85,6 @@ export const removeItemFromCart = asyncHandler(async (req, res) => {
   
 
   if (product) {
-    product.stocksLeft += removedItem.quantity;
     await product.save();
   }
 
@@ -106,7 +104,6 @@ export const clearCart = asyncHandler(async (req, res) => {
   for (const item of cart.items) {
     const product = await Product.findById(item.productId);
     if (product) {
-      product.stocksLeft += item.quantity;
       await product.save();
     }
   }
