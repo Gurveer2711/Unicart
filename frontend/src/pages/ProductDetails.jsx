@@ -23,6 +23,7 @@ const ProductDetails = () => {
   // Local state for UI updates
   const [inCart, setInCart] = useState(false);
   const [stockLeft, setStockLeft] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   // Update stockLeft when the selected product changes
   useEffect(() => {
@@ -34,10 +35,10 @@ const ProductDetails = () => {
   // Handle Add to Cart
   const handleAddToCart = (e) => {
     e.preventDefault();
-    if (stockLeft > 0) {
-      dispatch(addToCart({ productId: selectedProduct._id, quantity: 1 }));
+    if (stockLeft >= quantity) {
+      dispatch(addToCart({ productId: selectedProduct._id, quantity }));
       setInCart(true);
-      setStockLeft((prevStock) => prevStock - 1); // Reduce stock by 1 locally
+      setStockLeft((prevStock) => prevStock - quantity); // Reduce stock by selected quantity
 
       // Show "Added to Cart" for 2 seconds
       setTimeout(() => {
@@ -70,8 +71,40 @@ const ProductDetails = () => {
             {stockLeft !== null ? stockLeft : "Loading..."} items left in stock
           </p>
 
-          {/* Add to Cart Button */}
-          <div className="h-12 flex items-center justify-start mt-auto">
+          {/* Add to Cart Section */}
+          <div className="h-12 flex items-center justify-start mt-auto gap-3">
+            {/* Quantity Dropdown */}
+            <div className="relative">
+              <select
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="h-10 w-20 pl-3 pr-8 border border-gray-300 rounded-lg appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#f46530] focus:border-transparent"
+                disabled={stockLeft === 0}
+              >
+                {[...Array(Math.min(10, stockLeft || 10)).keys()].map((num) => (
+                  <option key={num + 1} value={num + 1}>
+                    {num + 1}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg
+                  className="w-4 h-4 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
             {inCart ? (
               <span className="bg-green-500 text-white px-4 py-2 rounded-lg">
                 Added to Cart
