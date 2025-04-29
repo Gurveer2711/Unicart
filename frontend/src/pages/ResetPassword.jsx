@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
@@ -23,9 +25,10 @@ const ResetPassword = () => {
       const result = await dispatch(
         resetPassword({ token, newPassword, confirmPassword })
       ).unwrap();
-      if (result.message) {
-        navigate("/login");
-      }
+
+      // Show success message and navigate to login
+      alert("Password reset successful! Please login with your new password.");
+      navigate("/login");
     } catch (error) {
       console.error("Failed to reset password:", error);
     }
@@ -46,7 +49,7 @@ const ResetPassword = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300 pr-10"
@@ -65,7 +68,7 @@ const ResetPassword = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-orange-300 pr-10"

@@ -72,12 +72,12 @@ export const resetPassword = asyncHandler(async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-
-    user.password = newPassword;  
+    user.password = newPassword;
     await user.save();
 
     return res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
+    console.error("Reset password error:", error);
     return res
       .status(500)
       .json({ message: "Internal Server Error", error: error.message });
@@ -141,12 +141,12 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (!email || !password) {
     return res.status(401).json({ error: "Email and password are required" });
   }
-  
+
   const user = await User.findOne({ email });
   if (!user) {
     return res.status(401).json({ error: "Invalid email or password" });
   }
-  
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(401).json({ error: "Invalid email or password" });
