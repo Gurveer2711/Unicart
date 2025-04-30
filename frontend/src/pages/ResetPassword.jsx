@@ -22,7 +22,7 @@ const ResetPassword = () => {
       return;
     }
     try {
-      const result = await dispatch(
+      await dispatch(
         resetPassword({ token, newPassword, confirmPassword })
       ).unwrap();
 

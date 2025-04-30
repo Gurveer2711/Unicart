@@ -33,9 +33,6 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
 
-  useEffect(() => {
-    if (!userInfo) navigate("/login");
-  }, [userInfo, navigate]);
 
   useEffect(() => {
     if (userInfo) {
