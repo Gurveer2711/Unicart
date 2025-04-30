@@ -1,43 +1,67 @@
 // controllers/ordersController.js
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
-
+import Product from "../models/productModel.js";
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 export const createOrder = asyncHandler(async (req, res) => {
-  try {
-    const {
-      user,
-      orderItems,
-      shippingAddress,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
-    } = req.body;
+  const {
+    user,
+    orderItems,
+    shippingAddress,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    totalPrice,
+  } = req.body;
 
-    if (!orderItems || orderItems.length === 0) {
-      res.status(400);
-      throw new Error("No order items");
+  if (!orderItems || orderItems.length === 0) {
+    res.status(400);
+    throw new Error("No order items");
+  }
+
+  // Check stock before creating order
+  for (const item of orderItems) {
+    const product = await Product.findById(item.product);
+    if (!product) {
+      res.status(404);
+      throw new Error(`Product not found: ${item.product}`);
     }
 
-    const order = new Order({
-      user,
-      orderItems,
-      shippingAddress,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
-    });
-
-    await order.save();
-    res.status(201).json("Created order");
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (product.stocksLeft < item.quantity) {
+      res.status(400);
+      throw new Error(
+        `Not enough stock for ${product.name}. Only ${product.stocksLeft} left.`
+      );
+    }
   }
+
+  // Create order
+  const order = new Order({
+    user,
+    orderItems,
+    shippingAddress,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    totalPrice,
+  });
+  const createdOrder = await order.save();
+
+  // Deduct stock and save each product
+  for (const item of orderItems) {
+    const product = await Product.findById(item.product);
+    if (product) {
+      product.stocksLeft -= item.quantity;
+      await product.save();
+    }
+  }
+
+  res.status(201).json(createdOrder);
 });
+
+
 
 // @desc    Get order by ID
 // @route   GET /api/orders/:id

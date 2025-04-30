@@ -99,6 +99,7 @@ const processOrder = expressAsyncHandler(async (req, res) => {
 
   // Create order items from cart items
   const orderItems = cart.items.map((item) => {
+
     return {
       product: item.productId._id,
       title: item.productId.title,
@@ -125,14 +126,6 @@ const processOrder = expressAsyncHandler(async (req, res) => {
 
   const createdOrder = await order.save();
 
-  // Update product stock quantity
-  for (const item of cart.items) {
-    const product = await Product.findById(item.productId);
-    if (product) {
-      product.stocksLeft = Math.max(0, product.stocksLeft - item.quantity);
-      await product.save();
-    }
-  }
 
   // Clear cart
   cart.items = [];
