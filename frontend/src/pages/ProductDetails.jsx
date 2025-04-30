@@ -6,6 +6,17 @@ import { useParams } from "react-router-dom";
 import { fetchProductById } from "../features/productSlice";
 import { addToCart } from "../features/cartSlice";
 
+// Add this style at the top of the component
+const styles = {
+  "@keyframes fadeIn": {
+    "0%": { opacity: 0 },
+    "100%": { opacity: 1 },
+  },
+  ".animate-fade-in": {
+    animation: "fadeIn 0.3s ease-in-out",
+  },
+};
+
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -38,12 +49,40 @@ const ProductDetails = () => {
     if (stockLeft >= quantity) {
       dispatch(addToCart({ productId: selectedProduct._id, quantity }));
       setInCart(true);
-      setStockLeft((prevStock) => prevStock - quantity); // Reduce stock by selected quantity
+      // setStockLeft((prevStock) => prevStock - quantity); // Reduce stock by selected quantity
 
       // Show "Added to Cart" for 2 seconds
       setTimeout(() => {
         setInCart(false);
       }, 2000);
+    }
+    else {
+      dispatch(addToCart({ productId: selectedProduct._id, quantity: stockLeft }));
+      {
+        inCart && (
+          <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <svg
+                className="w-5 h-5 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+              <span className="font-medium text-sm">
+                Only {stockLeft} were Added to Cart due to availability!
+              </span>
+            </div>
+          </div>
+        );
+      }
     }
   };
 
@@ -66,10 +105,16 @@ const ProductDetails = () => {
             ${selectedProduct?.price}
           </p>
 
-          {/* Stocks Left */}
-          <p className="text-gray-600 font-medium mb-4">
-            {stockLeft !== null ? stockLeft : "Loading..."} items left in stock
-          </p>
+          {/* Stock Status - Conditional Rendering */}
+          {stockLeft > 5 ? (
+            <p className="text-green-600 font-medium mb-4">In Stock</p>
+          ) : stockLeft > 0 ? (
+            <p className="text-orange-500 font-medium mb-4">
+              Only {stockLeft} left in stock
+            </p>
+          ) : (
+            <p className="text-red-600 font-medium mb-4">Out of Stock</p>
+          )}
 
           {/* Add to Cart Section */}
           <div className="h-12 flex items-center justify-start mt-auto gap-3">
@@ -105,26 +150,42 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {inCart ? (
-              <span className="bg-green-500 text-white px-4 py-2 rounded-lg">
-                Added to Cart
-              </span>
-            ) : (
-              <button
-                onClick={handleAddToCart}
-                disabled={stockLeft === 0}
-                className={`px-5 py-2 rounded-lg transition-colors duration-300 text-white ${
-                  stockLeft === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[#f46530] hover:bg-[#d95327]"
-                }`}
-              >
-                Add to Cart
-              </button>
-            )}
+            <button
+              onClick={handleAddToCart}
+              disabled={stockLeft === 0}
+              className={`px-5 py-2 rounded-lg transition-colors duration-300 text-white ${
+                stockLeft === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#f46530] hover:bg-[#d95327]"
+              }`}
+            >
+              Add to Cart
+            </button>
           </div>
         </div>
       </div>
+      {/* Cart Notification Popup */}
+      {inCart && (
+        <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-6 h-6 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span className="font-medium">Added to Cart!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -6,6 +6,17 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
 import { useState } from "react";
 
+// Add this style at the top of the component
+const styles = {
+  "@keyframes fadeIn": {
+    "0%": { opacity: 0 },
+    "100%": { opacity: 1 },
+  },
+  ".animate-fade-in": {
+    animation: "fadeIn 0.3s ease-in-out",
+  },
+};
+
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -20,12 +31,37 @@ const ProductCard = ({ product }) => {
 
     if (stocks >= quantity) {
       dispatch(addToCart({ productId: product._id, quantity }));
-      setStocks((prevStocks) => prevStocks - quantity);
+      // setStocks((prevStocks) => prevStocks - quantity);
       setInCart(true);
 
       setTimeout(() => {
         setInCart(false);
       }, 2000);
+    } else {
+      dispatch(addToCart({ productId: product._id, quantity: stocks }));
+      {
+        inCart && (
+          <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <svg
+                className="w-5 h-5 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+              <span className="font-medium text-sm">Only {stocks} were Added to Cart due to availability!</span>
+            </div>
+          </div>
+        );
+      }
     }
   };
 
@@ -64,9 +100,16 @@ const ProductCard = ({ product }) => {
           ${product.price}
         </p>
 
-        <p className="text-gray-600 text-sm mt-1">
-          Stock Left: <span className="font-semibold">{stocks}</span>
-        </p>
+        {/* Stock Status - Conditional Rendering */}
+        {stocks > 5 ? (
+          <p className="text-green-600 text-sm mt-1">In Stock</p>
+        ) : stocks > 0 ? (
+          <p className="text-orange-500 text-sm mt-1">
+            Only {stocks} left in stock
+          </p>
+        ) : (
+          <p className="text-red-600 text-sm mt-1">Out of Stock</p>
+        )}
 
         {/* Add to Cart Section */}
         <div className="h-12 flex items-center justify-center mt-auto gap-2">
@@ -102,25 +145,42 @@ const ProductCard = ({ product }) => {
             </div>
           </div>
 
-          {inCart ? (
-            <span className="bg-green-500 text-white px-3 py-2 rounded-lg text-sm flex-1">
-              Added to Cart
-            </span>
-          ) : (
-            <button
-              onClick={handleAddToCart}
-              disabled={stocks === 0}
-              className={`flex-1 py-2 rounded-lg transition-colors duration-300 text-white text-sm ${
-                stocks === 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#f46530] hover:bg-[#d95327]"
-              }`}
-            >
-              Add to Cart
-            </button>
-          )}
+          <button
+            onClick={handleAddToCart}
+            disabled={stocks === 0}
+            className={`flex-1 py-2 rounded-lg transition-colors duration-300 text-white text-sm ${
+              stocks === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#f46530] hover:bg-[#d95327]"
+            }`}
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
+
+      {/* Cart Notification Popup */}
+      {inCart && (
+        <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-5 h-5 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              ></path>
+            </svg>
+            <span className="font-medium text-sm">Added to Cart!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
