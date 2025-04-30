@@ -2,6 +2,7 @@
 import PropTypes from "prop-types";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import React from "react";
+import { useNavigate } from "react-router";
 
 const CartCard = ({
   item,
@@ -12,11 +13,19 @@ const CartCard = ({
 }) => {
   const { quantity, productId } = item;
   const { _id, title, price, image, stocksLeft } = productId;
+  const navigate = useNavigate();
 
   if (!productId || !_id) return null;
 
+  const handleCartCardClick = () => {
+    navigate(`/product/${_id}`);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow duration-300 mb-4">
+    <div
+      className="bg-white rounded-lg shadow-sm p-4 flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow duration-300 mb-4"
+      onClick={handleCartCardClick}
+    >
       <div className="flex-shrink-0">
         <img
           src={image || "/placeholder.svg"}
@@ -40,7 +49,10 @@ const CartCard = ({
       <div className="flex flex-col sm:items-end gap-4">
         <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
           <button
-            onClick={() => onDecreaseQuantity(_id, quantity)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDecreaseQuantity(_id, quantity);
+            }}
             className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition-colors"
             aria-label={quantity > 1 ? "Decrease quantity" : "Remove item"}
             disabled={stocksLeft === 0 || loading}
@@ -51,7 +63,10 @@ const CartCard = ({
             {loading ? <span className="animate-pulse">...</span> : quantity}
           </span>
           <button
-            onClick={() => onIncreaseQuantity(_id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onIncreaseQuantity(_id);
+            }}
             className="px-3 py-1 bg-gray-100 hover:bg-gray-200 transition-colors"
             aria-label="Increase quantity"
             disabled={stocksLeft === 0 || loading}
@@ -60,7 +75,10 @@ const CartCard = ({
           </button>
         </div>
         <button
-          onClick={() => onRemove(_id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(_id);
+          }}
           className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 text-sm"
           disabled={loading}
         >
