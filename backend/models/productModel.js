@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  price: { type: Number, required: true },
+  originalPrice: { type: Number, required: true },
+  discountedPrice: { type: Number, required: true },
   description: { type: String, required: true },
   category: { type: String, required: true },
   image: { type: String, required: true },
@@ -14,7 +15,7 @@ const productSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-productSchema.statics.getNewProductsByCategory = function () {
+productSchema.statics.getNewProducts = function () {
   return this.aggregate([
     { $sort: { createdAt: -1 } },
     { $limit: 10 },
@@ -22,12 +23,14 @@ productSchema.statics.getNewProductsByCategory = function () {
       $project: {
         _id: 1,
         title: 1,
-        price: 1,
+        originalPrice: 1,
+        discountedPrice: 1,
         image: 1,
         rating: 1,
         stocksLeft: 1,
         description: 1,
         category: 1,
+        createdAt: 1,
       },
     },
   ]);
@@ -37,40 +40,42 @@ productSchema.statics.getTopSellingProducts = function () {
   return this.aggregate([
     {
       $lookup: {
-        from: "orders", // Lookup the orders collection
-        let: { productId: "$_id" }, // Reference the product ID
+        from: "orders",
+        let: { productId: "$_id" },
         pipeline: [
-          { $unwind: "$orderItems" }, // Flatten the orderItems array
+          { $unwind: "$orderItems" },
           {
             $match: {
-              $expr: { $eq: ["$orderItems.product", "$$productId"] }, // Match product in order items
+              $expr: { $eq: ["$orderItems.product", "$$productId"] },
             },
           },
           {
             $group: {
               _id: null,
-              totalSold: { $sum: "$orderItems.quantity" }, // Sum up quantities sold
+              totalSold: { $sum: "$orderItems.quantity" },
             },
           },
         ],
-        as: "sales", // Alias for sales data
+        as: "sales",
       },
     },
-    { $unwind: { path: "$sales", preserveNullAndEmptyArrays: true } }, // Unwind sales data
+    { $unwind: { path: "$sales", preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
         title: 1,
-        price: 1,
+        originalPrice: 1,
+        discountedPrice: 1,
         image: 1,
-        totalSold: { $ifNull: ["$sales.totalSold", 0] }, // Default to 0 if no sales data
+        rating: 1,
+        stocksLeft:1,
+        totalSold: { $ifNull: ["$sales.totalSold", 0] },
       },
     },
-    { $sort: { totalSold: -1 } }, // Sort by totalSold in descending order
-    { $limit: 10 }, // Limit to top 10 products
+    { $sort: { totalSold: -1 } },
+    { $limit: 10 },
   ]);
 };
-
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;
