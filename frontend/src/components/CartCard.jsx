@@ -34,16 +34,27 @@ const CartCard = ({
         />
       </div>
       <div className="flex-grow">
-        <h2 className="text-lg font-medium text-gray-800">{title}</h2>
-        <p className="text-[#f46530] font-semibold mt-1">${price.toFixed(2)}</p>
+        <h2 className="text-lg font-medium text-gray-800 font-['Karla']">
+          {title}
+        </h2>
+        <div className="flex items-center gap-2 mt-1 font-['Karla']">
+          <p className="text-xl font-bold text-black line-through">
+            Rs {(price * 1.2).toFixed(0)}
+          </p>
+          <p className="text-xl font-bold text-[#f46530]">
+            Rs {price.toFixed(0)}
+          </p>
+        </div>
         {stocksLeft > 5 ? (
-          <p className="text-sm text-green-600 mt-1">In Stock</p>
+          <p className="text-sm text-green-600 mt-1 font-['Karla']">In Stock</p>
         ) : stocksLeft > 0 ? (
-          <p className="text-sm text-orange-500 mt-1">
+          <p className="text-sm text-orange-500 mt-1 font-['Karla']">
             Only {stocksLeft} left in stock
           </p>
         ) : (
-          <p className="text-sm text-red-500 mt-1">Out of Stock</p>
+          <p className="text-sm text-red-500 mt-1 font-['Karla']">
+            Out of Stock
+          </p>
         )}
       </div>
       <div className="flex flex-col sm:items-end gap-4">
@@ -59,7 +70,7 @@ const CartCard = ({
           >
             {quantity > 1 ? <Minus size={16} /> : <Trash2 size={16} />}
           </button>
-          <span className="px-4 py-1 text-center w-12">
+          <span className="px-4 py-1 text-center w-12 font-['Karla']">
             {loading ? <span className="animate-pulse">...</span> : quantity}
           </span>
           <button
@@ -79,7 +90,7 @@ const CartCard = ({
             e.stopPropagation();
             onRemove(_id);
           }}
-          className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 text-sm"
+          className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 text-sm font-['Karla']"
           disabled={loading}
         >
           <Trash2 size={16} />

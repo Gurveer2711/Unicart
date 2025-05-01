@@ -80,13 +80,19 @@ const Cart = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Cart</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-800 font-['Karla']">
+        Your Cart
+      </h1>
       {isInitialLoading ? (
-        <p className="text-center text-gray-600">Loading cart...</p>
+        <p className="text-center text-gray-600 font-['Karla']">
+          Loading cart...
+        </p>
       ) : error ? (
-        <p className="text-center text-red-500">Error: {error}</p>
+        <p className="text-center text-red-500 font-['Karla']">
+          Error: {error}
+        </p>
       ) : items.length === 0 ? (
-        <p className="text-gray-800 text-lg text-center my-8 mt-20">
+        <p className="text-gray-800 text-lg text-center my-8 mt-20 font-['Karla']">
           Your cart is empty. Check out our{" "}
           <NavLink to="/products" className="text-red-600 hover:underline">
             Products
@@ -95,7 +101,7 @@ const Cart = () => {
         </p>
       ) : (
         <div>
-          <h2 className="text-4xl my-5 mt-16 font-sans">Your Cart</h2>
+          <h2 className="text-4xl my-5 mt-16 font-['Karla']">Your Cart</h2>
           {items.map((item) => (
             <CartCard
               key={item.productId._id}
@@ -107,15 +113,15 @@ const Cart = () => {
             />
           ))}
           <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 font-['Karla']">
               Total:{" "}
               <span className="text-[#f46530]">
-                ${totalAmount ? totalAmount.toFixed(2) : "0.00"}
+                Rs {totalAmount ? totalAmount.toFixed(0) : "0"}
               </span>
             </h2>
             <NavLink
               to="/checkout"
-              className="mt-4 w-full sm:w-auto bg-[#f46530] text-white px-6 py-3 rounded-lg hover:bg-[#da6236] transition-colors duration-300"
+              className="mt-4 w-full sm:w-auto bg-[#f46530] text-white px-6 py-3 rounded-lg hover:bg-[#da6236] transition-colors duration-300 font-['Karla']"
             >
               Checkout
             </NavLink>

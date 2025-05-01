@@ -16,10 +16,10 @@ const CheckoutPage = () => {
   const [formData, setFormData] = useState({
     street: "",
     city: "",
-    state:"",
+    state: "",
     zipCode: "",
     country: "",
-  }); 
+  });
 
   useEffect(() => {
     dispatch(fetchCart());
@@ -51,64 +51,62 @@ const CheckoutPage = () => {
     );
   };
 
- const handleSubmit = async (e) => {
-   e.preventDefault();
-   if (loading) return;
-   setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    setLoading(true);
 
-   try {
-     const orderItems = items.map((item) => ({
-       title: item.productId.title,
-       quantity: item.quantity,
-       image: item.productId.image,
-       price: item.productId.price,
-       product: item.productId._id,
-     }));
+    try {
+      const orderItems = items.map((item) => ({
+        title: item.productId.title,
+        quantity: item.quantity,
+        image: item.productId.image,
+        price: item.productId.price,
+        product: item.productId._id,
+      }));
 
-     // ✅ Match the new nested shippingAddress.address
-     const shippingAddress = {
-       address: {
-         street: formData.street,
-         city: formData.city,
-         state: formData.state,
-         zipCode: formData.zipCode,
-         country: formData.country,
-       },
-     };
+      // ✅ Match the new nested shippingAddress.address
+      const shippingAddress = {
+        address: {
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          country: formData.country,
+        },
+      };
 
-     const itemsPrice = calculateTotal();
-     const shippingPrice = 0;
-     const taxPrice = Number((itemsPrice * 0.1).toFixed(2));
-     const totalPrice = Number((itemsPrice + taxPrice).toFixed(2));
+      const itemsPrice = calculateTotal();
+      const shippingPrice = 0;
+      const taxPrice = Number((itemsPrice * 0.1).toFixed(2));
+      const totalPrice = Number((itemsPrice + taxPrice).toFixed(2));
 
-     const orderPayload = {
-       user:userInfo._id,
-       orderItems,
-       shippingAddress,
-       itemsPrice,
-       shippingPrice,
-       taxPrice,
-       totalPrice,
-     };
+      const orderPayload = {
+        user: userInfo._id,
+        orderItems,
+        shippingAddress,
+        itemsPrice,
+        shippingPrice,
+        taxPrice,
+        totalPrice,
+      };
 
-     const resultAction = await dispatch(createOrder(orderPayload));
+      const resultAction = await dispatch(createOrder(orderPayload));
 
-     if (createOrder.fulfilled.match(resultAction)) {
-       dispatch(clearCart());
-       navigate("/profile");
-     } else {
-       throw new Error(
-         resultAction.payload?.message || "Failed to create order"
-       );
-     }
-   } catch (error) {
-     console.error("❌ Order creation error:", error.message);
-   } finally {
-     setLoading(false);
-   }
- };
-
-
+      if (createOrder.fulfilled.match(resultAction)) {
+        dispatch(clearCart());
+        navigate("/profile");
+      } else {
+        throw new Error(
+          resultAction.payload?.message || "Failed to create order"
+        );
+      }
+    } catch (error) {
+      console.error("❌ Order creation error:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (cartLoading) {
     return (
@@ -122,12 +120,12 @@ const CheckoutPage = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 font-['Karla']">
             Your cart is empty
           </h1>
           <button
             onClick={() => navigate("/products")}
-            className="bg-[#f46530] text-white px-6 py-2 rounded-lg hover:bg-[#e55420] transition-colors"
+            className="bg-[#f46530] text-white px-6 py-2 rounded-lg hover:bg-[#e55420] transition-colors font-['Karla']"
           >
             Continue Shopping
           </button>
@@ -143,7 +141,7 @@ const CheckoutPage = () => {
         <div className="flex items-center mb-8">
           <button
             onClick={() => navigate("/cart")}
-            className="flex items-center text-gray-600 hover:text-[#f46530] transition-colors"
+            className="flex items-center text-gray-600 hover:text-[#f46530] transition-colors font-['Karla']"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Cart
@@ -153,35 +151,35 @@ const CheckoutPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-8">
-            {/* Progress Steps
-            // <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-            //   <div className="flex items-center justify-between">
-            //     <div className="flex items-center">
-            //       <div className="w-8 h-8 bg-[#f46530] text-white rounded-full flex items-center justify-center">
-            //         1
-            //       </div>
-            //       <span className="ml-3 font-medium">Shipping</span>
-            //     </div>
-            //     <div className="flex items-center">
-            //       <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
-            //         2
-            //       </div>
-            //       <span className="ml-3 font-medium text-gray-500">
-            //         Payment
-            //       </span>
-            //     </div>
-            //   </div>
-            // </div> */}
+            {/* Progress Steps */}
+             {/* <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+              <div className="flex items-center justify-between">
+                 <div className="flex items-center">
+                  <div className="w-8 h-8 bg-[#f46530] text-white rounded-full flex items-center justify-center">
+                     1
+                </div>
+                  <span className="ml-3 font-medium">Shipping</span>
+                 </div>
+                 <div className="flex items-center">
+                  <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
+                     2
+                </div>
+                 <span className="ml-3 font-medium text-gray-500">
+              Payment
+                  </span>
+                 </div>
+               </div>
+             </div> */}
 
             {/* Shipping Form */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-6">
+              <h2 className="text-xl font-semibold mb-6 font-['Karla']">
                 Shipping Information
               </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 font-['Karla']">
                       Street
                     </label>
                     <input
@@ -196,7 +194,7 @@ const CheckoutPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 font-['Karla']">
                       City
                     </label>
                     <input
@@ -210,7 +208,7 @@ const CheckoutPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 font-['Karla']">
                       State
                     </label>
                     <input
@@ -224,7 +222,7 @@ const CheckoutPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 font-['Karla']">
                       Postal Code
                     </label>
                     <input
@@ -239,7 +237,7 @@ const CheckoutPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 font-['Karla']">
                       Country
                     </label>
                     <input
@@ -254,7 +252,7 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-4 text-sm text-gray-600 font-['Karla']">
                   <Shield className="w-5 h-5" />
                   <span>Your information is secure and encrypted</span>
                 </div>
@@ -262,7 +260,7 @@ const CheckoutPage = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#f46530] text-white py-3 rounded-lg hover:bg-[#e55420] transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-[#f46530] text-white py-3 rounded-lg hover:bg-[#e55420] transition-colors flex items-center justify-center space-x-2 font-['Karla']"
                 >
                   {loading ? (
                     <>
@@ -283,7 +281,9 @@ const CheckoutPage = () => {
           {/* Order Summary */}
           <div className="lg:col-span-4">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-              <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+              <h2 className="text-xl font-semibold mb-6 font-['Karla']">
+                Order Summary
+              </h2>
 
               {/* Order Items */}
               <div className="space-y-4 mb-6">
@@ -298,13 +298,15 @@ const CheckoutPage = () => {
                       className="w-16 h-16 object-contain rounded-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="font-medium">{item.productId.name}</h3>
-                      <p className="text-sm text-gray-600">
+                      <h3 className="font-medium font-['Karla']">
+                        {item.productId.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 font-['Karla']">
                         Quantity: {item.quantity}
                       </p>
                     </div>
-                    <p className="font-medium">
-                      ${(item.productId.price * item.quantity).toFixed(2)}
+                    <p className="font-medium font-['Karla']">
+                      Rs {(item.productId.price * item.quantity).toFixed(0)}
                     </p>
                   </div>
                 ))}
@@ -312,28 +314,28 @@ const CheckoutPage = () => {
 
               {/* Order Totals */}
               <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Subtotal</span>
-                  <span>${calculateTotal().toFixed(2)}</span>
+                  <span>Rs {calculateTotal().toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Tax</span>
-                  <span>${(calculateTotal() * 0.1).toFixed(2)}</span>
+                  <span>Rs {(calculateTotal() * 0.1).toFixed(0)}</span>
                 </div>
-                <div className="flex justify-between font-semibold text-lg pt-2 border-t">
+                <div className="flex justify-between font-semibold text-lg pt-2 border-t font-['Karla']">
                   <span>Total</span>
-                  <span>${(calculateTotal() * 1.1).toFixed(2)}</span>
+                  <span>Rs {(calculateTotal() * 1.1).toFixed(0)}</span>
                 </div>
               </div>
 
               {/* Shipping Info */}
-              <div className="mt-6 flex items-center space-x-2 text-sm text-gray-600">
+              <div className="mt-6 flex items-center space-x-2 text-sm text-gray-600 font-['Karla']">
                 <Truck className="w-5 h-5" />
-                <span>Free shipping on orders over $50</span>
+                <span>Free shipping on orders over Rs 50</span>
               </div>
             </div>
           </div>

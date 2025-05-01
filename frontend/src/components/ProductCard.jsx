@@ -6,17 +6,6 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "../features/cartSlice";
 import { useState } from "react";
 
-// Add this style at the top of the component
-const styles = {
-  "@keyframes fadeIn": {
-    "0%": { opacity: 0 },
-    "100%": { opacity: 1 },
-  },
-  ".animate-fade-in": {
-    animation: "fadeIn 0.3s ease-in-out",
-  },
-};
-
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -31,37 +20,13 @@ const ProductCard = ({ product }) => {
 
     if (stocks >= quantity) {
       dispatch(addToCart({ productId: product._id, quantity }));
-      // setStocks((prevStocks) => prevStocks - quantity);
       setInCart(true);
-
       setTimeout(() => {
         setInCart(false);
       }, 2000);
     } else {
       dispatch(addToCart({ productId: product._id, quantity: stocks }));
-      {
-        inCart && (
-          <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
-              <span className="font-medium text-sm">Only {stocks} were Added to Cart due to availability!</span>
-            </div>
-          </div>
-        );
-      }
+      // You may handle partial add message here, but JSX in JS block doesn't render anything
     }
   };
 
@@ -69,12 +34,14 @@ const ProductCard = ({ product }) => {
     navigate(`/product/${product._id}`);
   };
 
+  const increasedPrice = (product.price * 1.2).toFixed(0);
+
   return (
     <div
       onClick={handleCardClick}
       className="bg-white border-2 border-[#fff2dd] shadow-lg rounded-xl p-4 transition-transform hover:scale-[1.02] cursor-pointer h-[420px] flex flex-col"
     >
-      {/* Image Container */}
+      {/* Image */}
       <div className="overflow-hidden rounded-lg h-52 flex justify-center items-center flex-shrink-0">
         <img
           src={product.image || "/placeholder.svg"}
@@ -83,37 +50,42 @@ const ProductCard = ({ product }) => {
         />
       </div>
 
-      {/* Product Details */}
+      {/* Product Info */}
       <div className="mt-4 text-center flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold text-gray-900 truncate">
+        <h3 className="text-lg font-semibold text-gray-900 truncate font-['Karla']">
           {product.title}
         </h3>
 
-        <div className="flex items-center justify-center gap-1 text-[#f46530] mt-1">
+        <div className="flex items-center justify-center gap-1 text-[#f46530] mt-1 font-['Karla']">
           {"⭐".repeat(Math.ceil(product.rating.rate))}{" "}
           <span className="text-gray-500 text-sm">
             ({product.rating.count})
           </span>
         </div>
 
-        <p className="text-xl font-bold text-[#f46530] mt-2">
-          ${product.price}
-        </p>
+        {/* Prices in same line */}
+        <div className="flex items-center justify-center gap-2 mt-2 font-['Karla']">
+          <p className="text-xl font-bold text-black line-through">
+            Rs {increasedPrice}
+          </p>
+          <p className="text-xl font-bold text-[#f46530]">Rs {product.price}</p>
+        </div>
 
-        {/* Stock Status - Conditional Rendering */}
+        {/* Stock info */}
         {stocks > 5 ? (
-          <p className="text-green-600 text-sm mt-1">In Stock</p>
+          <p className="text-green-600 text-sm mt-1 font-['Karla']">In Stock</p>
         ) : stocks > 0 ? (
-          <p className="text-orange-500 text-sm mt-1">
+          <p className="text-orange-500 text-sm mt-1 font-['Karla']">
             Only {stocks} left in stock
           </p>
         ) : (
-          <p className="text-red-600 text-sm mt-1">Out of Stock</p>
+          <p className="text-red-600 text-sm mt-1 font-['Karla']">
+            Out of Stock
+          </p>
         )}
 
-        {/* Add to Cart Section */}
+        {/* Quantity + Add to Cart */}
         <div className="h-12 flex items-center justify-center mt-auto gap-2">
-          {/* Quantity Dropdown */}
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <select
               value={quantity}
@@ -159,7 +131,7 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-      {/* Cart Notification Popup */}
+      {/* Add to Cart Notification */}
       {inCart && (
         <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
           <div className="flex items-center gap-2">
@@ -177,7 +149,9 @@ const ProductCard = ({ product }) => {
                 d="M5 13l4 4L19 7"
               ></path>
             </svg>
-            <span className="font-medium text-sm">Added to Cart!</span>
+            <span className="font-medium text-sm font-['Karla']">
+              Added to Cart!
+            </span>
           </div>
         </div>
       )}
@@ -185,7 +159,7 @@ const ProductCard = ({ product }) => {
   );
 };
 
-// Prop Validation
+// Prop validation
 ProductCard.propTypes = {
   product: PropTypes.shape({
     _id: PropTypes.string.isRequired,
