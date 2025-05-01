@@ -61,8 +61,6 @@ export const createOrder = asyncHandler(async (req, res) => {
   res.status(201).json(createdOrder);
 });
 
-
-
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
 // @access  Private
@@ -97,7 +95,6 @@ export const getMyOrders = asyncHandler(async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // @desc    Get all orders (Admin)
 // @route   GET /api/orders

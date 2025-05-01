@@ -44,11 +44,11 @@ const createCheckoutSession = expressAsyncHandler(async (req, res) => {
 
   // Calculate prices
   const itemsPrice = cart.items.reduce((acc, item) => {
-    return acc + item.productId.price * item.quantity;
+    return acc + item.productId.discountedPrice * item.quantity;
   }, 0);
 
-  const taxPrice = Number((itemsPrice * taxRate).toFixed(2));
-  const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(2));
+  const taxPrice = Number((itemsPrice * taxRate).toFixed(0));
+  const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(0));
 
   // Create checkout session
   const checkoutSession = {
@@ -56,7 +56,7 @@ const createCheckoutSession = expressAsyncHandler(async (req, res) => {
     cartItems: cart.items.map((item) => ({
       product: item.productId._id,
       name: item.productId.title,
-      price: item.productId.price,
+      price: item.productId.discountedPrice,
       quantity: item.quantity,
       image: item.productId.image,
     })),
@@ -99,12 +99,11 @@ const processOrder = expressAsyncHandler(async (req, res) => {
 
   // Create order items from cart items
   const orderItems = cart.items.map((item) => {
-
     return {
       product: item.productId._id,
       title: item.productId.title,
       quantity: item.quantity,
-      price: item.productId.price,
+      price: item.productId.discountedPrice,
       image: item.productId.image,
     };
   });
@@ -125,7 +124,6 @@ const processOrder = expressAsyncHandler(async (req, res) => {
   });
 
   const createdOrder = await order.save();
-
 
   // Clear cart
   cart.items = [];

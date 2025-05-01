@@ -42,7 +42,10 @@ export const addItemToCart = asyncHandler(async (req, res) => {
   await cart.populate("items.productId");
   cart.totalAmount = Number(
     cart.items
-      .reduce((total, item) => total + item.quantity * item.productId.price, 0)
+      .reduce(
+        (total, item) => total + item.quantity * item.productId.discountedPrice,
+        0
+      )
       .toFixed(2)
   );
 
@@ -55,7 +58,6 @@ export const addItemToCart = asyncHandler(async (req, res) => {
 
   res.status(201).json(updatedCart);
 });
-
 
 // Remove Item from Cart
 export const removeItemFromCart = asyncHandler(async (req, res) => {
@@ -81,8 +83,7 @@ export const removeItemFromCart = asyncHandler(async (req, res) => {
   const removedItem = cart.items[itemIndex];
   const product = await Product.findById(productId);
 
-    cart.items.splice(itemIndex, 1);
-  
+  cart.items.splice(itemIndex, 1);
 
   if (product) {
     await product.save();
