@@ -1,7 +1,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 function Footer() {
+  const { userInfo } = useSelector((state) => state.auth);
+
   return (
     <footer className="bg-[#fff2dd] text-black font-inter">
       {/* Main Footer Content */}
@@ -11,9 +14,10 @@ function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">About Us</h3>
             <p className="text-sm">
-              At <span className="font-libre font-semibold text-md">UniCart</span>, we bring you a seamless shopping
-              experience with high-quality products, unbeatable deals, and
-              exceptional customer service.
+              At{" "}
+              <span className="font-libre font-semibold text-md">UniCart</span>,
+              we bring you a seamless shopping experience with high-quality
+              products, unbeatable deals, and exceptional customer service.
             </p>
           </div>
 
@@ -55,6 +59,18 @@ function Footer() {
                   }
                 >
                   Cart
+                </NavLink>
+              </li>
+              <li className="mb-2">
+                <NavLink
+                  to={userInfo ? "/profile" : "/login"}
+                  className={({ isActive }) =>
+                    `font-semibold text-black ${
+                      isActive ? "text-[#f46530]" : ""
+                    } hover:text-[#f46530]`
+                  }
+                >
+                  {userInfo ? "Profile" : "Login"}
                 </NavLink>
               </li>
               <li className="mb-2">
@@ -179,7 +195,7 @@ function Footer() {
           </a>
           <a href="#" className="hover:opacity-75" aria-label="Mastercard">
             <img
-              src="https://imgs.search.brave.com/HtHWZ7mian2xFG1lxWOOzugdLC6jqfszl7w3jvsyWbE/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9wbmdp/bWcuY29tL3VwbG9h/ZHMvbWFzdGVyY2Fy/ZC9tYXN0ZXJjYXJk/X1BORzI1LnBuZw"
+              src="https://imgs.search.brave.com/HtHWZ7mian2xFG1lxWOOzugdLC6jqfszl7w3jvsyWbE/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9wbmdp/bWcuY29tL3VwbG9h/ZHMvbWFzdGVyY2Fy/ZC9tYXN0ZXJjYXJk/XBORzI1LnBuZw"
               alt="Mastercard"
               className="w-8 h-8"
             />
