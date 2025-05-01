@@ -22,3 +22,26 @@ export const getProductById = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 });
+
+export const getTopSellingProducts = async (req, res) => {
+  try {
+    const products = await Product.getTopSellingProducts();
+    res.status(200).json(products); // Return the top-selling products
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching top-selling products", error });
+  }
+};
+
+// Controller to get new products by category
+export const getNewProductsByCategory = async (req, res) => {
+  try {
+    const products = await Product.getNewProductsByCategory();
+    res.status(200).json(products); // Return the new products in the category
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching new products by category", error });
+  }
+};
