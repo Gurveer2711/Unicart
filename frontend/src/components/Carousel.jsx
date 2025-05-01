@@ -14,8 +14,8 @@ function CarouselDefault({ images }) {
   });
 
   return (
-    <div className="flex items-center justify-center sm:px-5 sm:py-3 lg:py-8">
-      <div className="h-full w-full lg:h-[33rem] lg:px-36">
+    <div className="flex items-center justify-center w-full py-3">
+      <div className="w-full h-full lg:h-[44rem]">
         <Carousel
           autoplay={true}
           autoplayDelay={3000}
