@@ -46,7 +46,7 @@ const CheckoutPage = () => {
 
   const calculateTotal = () => {
     return items.reduce(
-      (total, item) => total + item.productId.price * item.quantity,
+      (total, item) => total + item.productId.discountedPrice * item.quantity,
       0
     );
   };
@@ -61,11 +61,10 @@ const CheckoutPage = () => {
         title: item.productId.title,
         quantity: item.quantity,
         image: item.productId.image,
-        price: item.productId.price,
+        price: item.productId.discountedPrice,
         product: item.productId._id,
       }));
 
-      // ✅ Match the new nested shippingAddress.address
       const shippingAddress = {
         address: {
           street: formData.street,
@@ -78,8 +77,8 @@ const CheckoutPage = () => {
 
       const itemsPrice = calculateTotal();
       const shippingPrice = 0;
-      const taxPrice = Number((itemsPrice * 0.1).toFixed(2));
-      const totalPrice = Number((itemsPrice + taxPrice).toFixed(2));
+      const taxPrice = Math.round(itemsPrice * 0.1);
+      const totalPrice = itemsPrice + taxPrice;
 
       const orderPayload = {
         user: userInfo._id,
@@ -152,7 +151,7 @@ const CheckoutPage = () => {
           {/* Main Content */}
           <div className="lg:col-span-8">
             {/* Progress Steps */}
-             {/* <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+            {/* <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <div className="flex items-center justify-between">
                  <div className="flex items-center">
                   <div className="w-8 h-8 bg-[#f46530] text-white rounded-full flex items-center justify-center">
@@ -294,19 +293,19 @@ const CheckoutPage = () => {
                   >
                     <img
                       src={item.productId.image}
-                      alt={item.productId.name}
+                      alt={item.productId.title}
                       className="w-16 h-16 object-contain rounded-lg"
                     />
                     <div className="flex-1">
                       <h3 className="font-medium font-['Karla']">
-                        {item.productId.name}
+                        {item.productId.title}
                       </h3>
                       <p className="text-sm text-gray-600 font-['Karla']">
                         Quantity: {item.quantity}
                       </p>
                     </div>
                     <p className="font-medium font-['Karla']">
-                      Rs {(item.productId.price * item.quantity).toFixed(0)}
+                      Rs {item.productId.discountedPrice * item.quantity}
                     </p>
                   </div>
                 ))}
@@ -316,27 +315,20 @@ const CheckoutPage = () => {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Subtotal</span>
-                  <span>Rs {calculateTotal().toFixed(0)}</span>
+                  <span>Rs {calculateTotal()}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-                <div className="flex justify-between text-gray-600 font-['Karla']">
-                  <span>Tax</span>
-                  <span>Rs {(calculateTotal() * 0.1).toFixed(0)}</span>
-                </div>
+              
                 <div className="flex justify-between font-semibold text-lg pt-2 border-t font-['Karla']">
                   <span>Total</span>
-                  <span>Rs {(calculateTotal() * 1.1).toFixed(0)}</span>
+                  <span>Rs {(calculateTotal()).toFixed(0)}</span>
                 </div>
               </div>
 
-              {/* Shipping Info */}
-              <div className="mt-6 flex items-center space-x-2 text-sm text-gray-600 font-['Karla']">
-                <Truck className="w-5 h-5" />
-                <span>Free shipping on orders over Rs 50</span>
-              </div>
+        
             </div>
           </div>
         </div>
