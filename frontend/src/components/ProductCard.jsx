@@ -34,8 +34,6 @@ const ProductCard = ({ product }) => {
     navigate(`/product/${product._id}`);
   };
 
-  const increasedPrice = (product.price * 1.2).toFixed(0);
-
   return (
     <div
       onClick={handleCardClick}
@@ -59,16 +57,18 @@ const ProductCard = ({ product }) => {
         <div className="flex items-center justify-center gap-1 text-[#f46530] mt-1 font-['Karla']">
           {"⭐".repeat(Math.ceil(product.rating.rate))}{" "}
           <span className="text-gray-500 text-sm">
-            ({product.rating.count})
+            {product.rating.count}
           </span>
         </div>
 
         {/* Prices in same line */}
         <div className="flex items-center justify-center gap-2 mt-2 font-['Karla']">
           <p className="text-xl font-bold text-black line-through">
-            Rs {increasedPrice}
+            Rs {product.originalPrice}
           </p>
-          <p className="text-xl font-bold text-[#f46530]">Rs {product.price}</p>
+          <p className="text-xl font-bold text-[#f46530]">
+            Rs {product.discountedPrice}
+          </p>
         </div>
 
         {/* Stock info */}
@@ -168,7 +168,8 @@ ProductCard.propTypes = {
       rate: PropTypes.number.isRequired,
       count: PropTypes.number.isRequired,
     }).isRequired,
-    price: PropTypes.number.isRequired,
+    originalPrice: PropTypes.number.isRequired,
+    discountedPrice: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     stocksLeft: PropTypes.number.isRequired,
   }).isRequired,
