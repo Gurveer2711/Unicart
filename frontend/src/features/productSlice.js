@@ -26,11 +26,37 @@ export const fetchProductById = createAsyncThunk(
     }
   }
 );
+// Fetch top-selling products
+export const fetchTopSellingProducts = createAsyncThunk(
+  "products/fetchTopSelling",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/api/products/top-selling");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
+// Fetch new products
+export const fetchNewProducts = createAsyncThunk(
+  "products/fetchNew",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/api/products/new");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 const productSlice = createSlice({
   name: "products",
   initialState: {
     items: [],
+    topSelling: [],
+    newProducts: [],
     selectedProduct: null,
     loading: false,
     error: null,
@@ -58,7 +84,30 @@ const productSlice = createSlice({
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchTopSellingProducts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchTopSellingProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.topSelling = action.payload;
+      })
+      .addCase(fetchTopSellingProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchNewProducts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchNewProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.newProducts = action.payload;
+      })
+      .addCase(fetchNewProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
+
   },
 });
 
