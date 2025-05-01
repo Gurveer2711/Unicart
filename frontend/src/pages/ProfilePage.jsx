@@ -33,7 +33,6 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
 
-
   useEffect(() => {
     if (userInfo) {
       setFormData({
@@ -335,7 +334,7 @@ const ProfilePage = () => {
                                 </p>
                               </div>
                               <p className="text-sm font-medium">
-                                ${item.price.toFixed(2)}
+                                Rs {item.discountedPrice}
                               </p>
                             </div>
                           ))}
@@ -346,7 +345,7 @@ const ProfilePage = () => {
                             Total
                           </span>
                           <span className="text-lg font-bold text-gray-900">
-                            ${order.totalPrice.toFixed(2)}
+                            Rs {order.totalPrice}
                           </span>
                         </div>
                       </div>

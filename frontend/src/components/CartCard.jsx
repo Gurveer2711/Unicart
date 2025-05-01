@@ -39,10 +39,10 @@ const CartCard = ({
         </h2>
         <div className="flex items-center gap-2 mt-1 font-['Karla']">
           <p className="text-xl font-bold text-black line-through">
-            Rs {(price * 1.2).toFixed(0)}
+            Rs {productId.originalPrice * 1.2}
           </p>
           <p className="text-xl font-bold text-[#f46530]">
-            Rs {price.toFixed(0)}
+            Rs {productId.discountedPrice}
           </p>
         </div>
         {stocksLeft > 5 ? (

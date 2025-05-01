@@ -55,9 +55,10 @@ const ProductDetails = () => {
       setTimeout(() => {
         setInCart(false);
       }, 2000);
-    }
-    else {
-      dispatch(addToCart({ productId: selectedProduct._id, quantity: stockLeft }));
+    } else {
+      dispatch(
+        addToCart({ productId: selectedProduct._id, quantity: stockLeft })
+      );
       {
         inCart && (
           <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
@@ -101,9 +102,14 @@ const ProductDetails = () => {
         <div>
           <h1 className="text-3xl font-bold mb-4">{selectedProduct?.title}</h1>
           <p className="text-gray-700 mb-4">{selectedProduct?.description}</p>
-          <p className="text-2xl font-semibold mb-4">
-            ${selectedProduct?.price}
-          </p>
+          <div className="flex items-center gap-2 mb-4">
+            <p className="text-2xl font-semibold text-black line-through">
+              Rs {selectedProduct?.originalPrice.toFixed(0)}
+            </p>
+            <p className="text-2xl font-semibold text-[#f46530]">
+              Rs {selectedProduct?.discountedPrice.toFixed(0)}
+            </p>
+          </div>
 
           {/* Stock Status - Conditional Rendering */}
           {stockLeft > 5 ? (
