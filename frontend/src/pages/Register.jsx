@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNotification } from "../context/NotificationContext";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -11,18 +12,28 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("user");
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userData = { name, email, password,role };
+    const userData = { name, email, password, role };
 
     try {
       await dispatch(registerUser(userData)).unwrap();
+      addNotification({
+        message: "Registration successful! Please login to continue.",
+        type: "success",
+        duration: 3000,
+      });
       navigate("/login");
     } catch (error) {
-      console.error("Registration failed:", error);
+      addNotification({
+        message: error,
+        type: "error",
+        duration: 5000,
+      });
     }
   };
 
@@ -36,7 +47,6 @@ const Register = () => {
         <h2 className="text-2xl font-bold text-center mb-4">
           Create an Account
         </h2>
-        {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
