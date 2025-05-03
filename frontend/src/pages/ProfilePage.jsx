@@ -334,7 +334,7 @@ const ProfilePage = () => {
                                 </p>
                               </div>
                               <p className="text-sm font-medium">
-                                Rs {item.discountedPrice}
+                                Rs {item.price}
                               </p>
                             </div>
                           ))}
