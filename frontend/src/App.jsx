@@ -22,6 +22,8 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import { NotificationProvider } from "./context/NotificationContext";
+import NotificationContainer from "./components/Notification/NotificationContainer";
 
 function Layout() {
   const dispatch = useDispatch();
@@ -41,8 +43,6 @@ function Layout() {
       dispatch(checkAuth());
     }
   }, [dispatch, location.pathname]);
-
-  
 
   return (
     <>
@@ -68,9 +68,12 @@ function Layout() {
 function App() {
   return (
     <Provider store={store}>
-      <Router>
-        <Layout />
-      </Router>
+      <NotificationProvider>
+        <Router>
+          <Layout />
+          <NotificationContainer />
+        </Router>
+      </NotificationProvider>
     </Provider>
   );
 }
