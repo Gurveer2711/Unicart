@@ -1,7 +1,5 @@
-"use client";
 import PropTypes from "prop-types";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import React from "react";
 import { useNavigate } from "react-router";
 
 const CartCard = ({
@@ -12,7 +10,7 @@ const CartCard = ({
   loading,
 }) => {
   const { quantity, productId } = item;
-  const { _id, title, price, image, stocksLeft } = productId;
+  const { _id, title, image, stocksLeft } = productId;
   const navigate = useNavigate();
 
   if (!productId || !_id) return null;
