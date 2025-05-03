@@ -3,31 +3,50 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNotification } from "../context/NotificationContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.auth);
-  const {userInfo} = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
+  const { userInfo } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await dispatch(loginUser({ email, password })).unwrap();
+      addNotification({
+        message: "Login successful! Welcome back!",
+        type: "success",
+        duration: 3000,
+      });
       navigate("/");
     } catch (error) {
-      console.error("Login failed:", error);
+      addNotification({
+        message: error,
+        type: "error",
+        duration: 5000,
+      });
     }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
-  }
+  };
+
   if (userInfo) {
-    alert("Please first logout");
+    addNotification({
+      message: {
+        message: "You are already logged in. Please logout first.",
+        details: "You are being redirected to your profile page.",
+      },
+      type: "error",
+      duration: 3000,
+    });
     navigate("/profile");
   }
 
@@ -37,7 +56,6 @@ const Login = () => {
         <h2 className="text-2xl font-bold text-center mb-4">
           Login to Your Account
         </h2>
-        {error && <p className="text-red-500 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <input
