@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchCart } from "../features/cartSlice";
-import { Truck, Shield, ArrowLeft } from "lucide-react";
+import { Shield, ArrowLeft } from "lucide-react";
 import { createOrder } from "../features/orderSlice";
 import { clearCart } from "../features/cartSlice";
+import { useNotification } from "../context/NotificationContext";
 
 const CheckoutPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
   const { userInfo } = useSelector((state) => state.auth);
   const { items, loading: cartLoading } = useSelector((state) => state.cart);
@@ -94,6 +96,11 @@ const CheckoutPage = () => {
 
       if (createOrder.fulfilled.match(resultAction)) {
         dispatch(clearCart());
+        addNotification({
+          message: "Order created successfully! Redirecting to your profile...",
+          type: "success",
+          duration: 3000,
+        });
         navigate("/profile");
       } else {
         throw new Error(
@@ -101,7 +108,11 @@ const CheckoutPage = () => {
         );
       }
     } catch (error) {
-      console.error("❌ Order creation error:", error.message);
+      addNotification({
+        message: error,
+        type: "error",
+        duration: 3000,
+      });
     } finally {
       setLoading(false);
     }
@@ -321,14 +332,12 @@ const CheckoutPage = () => {
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-              
+
                 <div className="flex justify-between font-semibold text-lg pt-2 border-t font-['Karla']">
                   <span>Total</span>
-                  <span>Rs {(calculateTotal()).toFixed(0)}</span>
+                  <span>Rs {calculateTotal().toFixed(0)}</span>
                 </div>
               </div>
-
-        
             </div>
           </div>
         </div>
