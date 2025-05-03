@@ -33,31 +33,47 @@ export const addItemToCart = asyncHandler(async (req, res) => {
   );
 
   if (existingItem) {
-    existingItem.quantity += quantity;
+    if (existingItem.quantity === product.stocksLeft) {
+      return res.status(400).json({
+        message: "You already have the maximum quantity in your cart",
+      });
+    } else if (existingItem.quantity + quantity > product.stocksLeft) {
+      existingItem.quantity += product.stocksLeft;
+      await cart.populate("items.productId");
+      cart.totalAmount = Number(
+        cart.items.reduce(
+          (total, item) => total + item.quantity * item.productId.discountedPrice,
+          0
+        ).toFixed(2)
+      );
+      await cart.save();
+        const updatedCart = await Cart.findOne({ user: userId }).populate(
+          "items.productId"
+        );
+
+      return res.status(201).json({
+        message: `Only ${product.stocksLeft} items were added due to stock limits`,
+        updatedCart,
+      });
+    } else {
+      existingItem.quantity += quantity;
+    }
   } else {
     cart.items.push({ productId, quantity });
   }
-
-  await product.save();
   await cart.populate("items.productId");
   cart.totalAmount = Number(
-    cart.items
-      .reduce(
-        (total, item) => total + item.quantity * item.productId.discountedPrice,
-        0
-      )
-      .toFixed(2)
+    cart.items.reduce(
+      (total, item) => total + item.quantity * item.productId.discountedPrice,
+      0
+    ).toFixed(2)
   );
-
   await cart.save();
 
-  // Fetch updated cart with product details
-  const updatedCart = await Cart.findOne({ user: userId }).populate(
-    "items.productId"
-  );
-
+  const updatedCart = await Cart.findOne({ user: userId }).populate("items.productId");
   res.status(201).json(updatedCart);
 });
+
 
 // Remove Item from Cart
 export const removeItemFromCart = asyncHandler(async (req, res) => {
@@ -80,15 +96,7 @@ export const removeItemFromCart = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Item not found in cart" });
   }
 
-  const removedItem = cart.items[itemIndex];
-  const product = await Product.findById(productId);
-
   cart.items.splice(itemIndex, 1);
-
-  if (product) {
-    await product.save();
-  }
-
   await cart.save();
   res.status(201).json(cart);
 });
@@ -101,14 +109,6 @@ export const clearCart = asyncHandler(async (req, res) => {
   if (!cart) {
     return res.status(404).json({ message: "Cart not found" });
   }
-
-  for (const item of cart.items) {
-    const product = await Product.findById(item.productId);
-    if (product) {
-      await product.save();
-    }
-  }
-
   cart.items = [];
   await cart.save();
   res.status(200).json({ message: "Cart cleared" });
