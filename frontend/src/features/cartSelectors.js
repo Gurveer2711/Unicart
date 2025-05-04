@@ -30,3 +30,14 @@ export const makeSelectIsItemLoading = () =>
     [(state) => state.cart.itemsLoading || {}, (_, productId) => productId],
     (itemsLoading, productId) => !!itemsLoading[productId]
   );
+
+// Memoized selector for item loading states
+export const selectItemLoadingStates = createSelector(
+  [selectCartItems, (state) => state.cart.itemsLoading],
+  (items, itemsLoading) => {
+    return items.reduce((acc, item) => {
+      acc[item.productId._id] = itemsLoading[item.productId._id] || false;
+      return acc;
+    }, {});
+  }
+);
