@@ -37,10 +37,14 @@ const orderSlice = createSlice({
     loading: false,
     error: null,
     createdOrder: null,
+    successMessage: null, // Added success message field
   },
   reducers: {
     resetCreatedOrder(state) {
       state.createdOrder = null;
+    },
+    clearSuccessMessage(state) {
+      state.successMessage = null;
     },
   },
   extraReducers: (builder) => {
@@ -48,31 +52,39 @@ const orderSlice = createSlice({
       .addCase(fetchUserOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.successMessage = null;
       })
       .addCase(fetchUserOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orders = action.payload;
+        state.successMessage =
+          action.payload.message || "Orders loaded successfully";
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to fetch orders";
+        state.successMessage = null;
       })
 
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.createdOrder = null;
+        state.successMessage = null;
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.createdOrder = action.payload;
+        state.successMessage =
+          action.payload.message || "Order created successfully";
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to create order";
+        state.successMessage = null;
       });
   },
 });
 
-export const { resetCreatedOrder } = orderSlice.actions;
+export const { resetCreatedOrder, clearSuccessMessage } = orderSlice.actions;
 export default orderSlice.reducer;
