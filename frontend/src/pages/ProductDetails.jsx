@@ -5,21 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchProductById } from "../features/productSlice";
 import { addToCart } from "../features/cartSlice";
-
-// Add this style at the top of the component
-const styles = {
-  "@keyframes fadeIn": {
-    "0%": { opacity: 0 },
-    "100%": { opacity: 1 },
-  },
-  ".animate-fade-in": {
-    animation: "fadeIn 0.3s ease-in-out",
-  },
-};
+import { useNotification } from "../context/NotificationContext";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { addNotification } = useNotification();
 
   // Fetch product only when ID changes
   useEffect(() => {
@@ -32,7 +23,6 @@ const ProductDetails = () => {
   );
 
   // Local state for UI updates
-  const [inCart, setInCart] = useState(false);
   const [stockLeft, setStockLeft] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -47,43 +37,51 @@ const ProductDetails = () => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     if (stockLeft >= quantity) {
-      dispatch(addToCart({ productId: selectedProduct._id, quantity }));
-      setInCart(true);
-      // setStockLeft((prevStock) => prevStock - quantity); // Reduce stock by selected quantity
-
-      // Show "Added to Cart" for 2 seconds
-      setTimeout(() => {
-        setInCart(false);
-      }, 2000);
+      dispatch(addToCart({ productId: selectedProduct._id, quantity }))
+        .unwrap()
+        .then(() => {
+          addNotification({
+            message: "Added to cart successfully",
+            type: "success",
+            duration: 2000,
+          });
+        })
+        .catch((error) => {
+          if (
+            error.error === "You already have the maximum quantity in your cart"
+          ) {
+            addNotification({
+              message: error.error,
+              type: "error",
+              duration: 3000,
+            });
+          } else {
+            addNotification({
+              message: error.message || "Error adding to cart",
+              type: "error",
+              duration: 3000,
+            });
+          }
+        });
     } else {
       dispatch(
         addToCart({ productId: selectedProduct._id, quantity: stockLeft })
-      );
-      {
-        inCart && (
-          <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
-            <div className="flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
-              <span className="font-medium text-sm">
-                Only {stockLeft} were Added to Cart due to availability!
-              </span>
-            </div>
-          </div>
-        );
-      }
+      )
+        .unwrap()
+        .then(() => {
+          addNotification({
+            message: `Only ${stockLeft} items were added due to stock limits`,
+            type: "warning",
+            duration: 3000,
+          });
+        })
+        .catch((error) => {
+          addNotification({
+            message: error.message || "Error adding to cart",
+            type: "error",
+            duration: 3000,
+          });
+        });
     }
   };
 
@@ -170,28 +168,6 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-      {/* Cart Notification Popup */}
-      {inCart && (
-        <div className="fixed top-1/4 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded-lg shadow-lg border border-gray-200 z-50 animate-fade-in">
-          <div className="flex items-center gap-2">
-            <svg
-              className="w-6 h-6 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-            <span className="font-medium">Added to Cart!</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
