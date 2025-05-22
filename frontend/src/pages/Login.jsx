@@ -20,7 +20,7 @@ const Login = () => {
     try {
       await dispatch(loginUser({ email, password })).unwrap();
       addNotification({
-        message: "Login successful! Welcome back!",
+        message: "Login successful!",
         type: "success",
         duration: 3000,
       });

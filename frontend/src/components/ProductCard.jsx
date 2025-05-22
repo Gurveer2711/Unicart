@@ -38,32 +38,7 @@ const ProductCard = ({ product }) => {
 
     const qtyToAdd = Math.min(quantity, remainingStock);
 
-    dispatch(addToCart({ productId: product._id, quantity: qtyToAdd }))
-      .unwrap()
-      .then(() => {
-        addNotification({
-          message: "Added to cart successfully",
-          type: "success",
-          duration: 2000,
-        });
-      })
-      .catch((error) => {
-        if (
-          error.error === "You already have the maximum quantity in your cart"
-        ) {
-          addNotification({
-            message: error.error,
-            type: "error",
-            duration: 3000,
-          });
-        } else {
-          addNotification({
-            message: error.message || "Error adding to cart",
-            type: "error",
-            duration: 3000,
-          });
-        }
-      });
+    dispatch(addToCart({ productId: product._id, quantity: qtyToAdd }));
   };
 
   const handleCardClick = () => {
