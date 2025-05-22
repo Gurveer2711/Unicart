@@ -16,8 +16,25 @@ const Register = () => {
   const navigate = useNavigate();
   const { addNotification } = useNotification();
 
+  const isStrongPassword = (password) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._#^()-])[A-Za-z\d@$!%*?&._#^()-]{8,}$/;
+    return regex.test(password);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isStrongPassword(password)) {
+      addNotification({
+        message:
+          "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.",
+        type: "error",
+        duration: 5000,
+      });
+      return;
+    }
+
     const userData = { name, email, password, role };
 
     try {
@@ -86,6 +103,13 @@ const Register = () => {
               {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
             </span>
           </div>
+
+          {password && !isStrongPassword(password) && (
+            <p className="text-sm text-red-500">
+              Password must be at least 8 characters and include uppercase,
+              lowercase, number, and special character.
+            </p>
+          )}
 
           <button
             type="submit"
