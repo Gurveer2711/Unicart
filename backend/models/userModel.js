@@ -16,7 +16,6 @@
       password: {
         type: String,
         required: true,
-        minlength: 6,
       },
       phone: {
         type: Number,
