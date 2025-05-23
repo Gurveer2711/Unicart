@@ -14,6 +14,7 @@ import Footer from "./components/Footer.jsx";
 import Products from "./pages/Products.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
+import ContactUs from "./pages/ContactUs.jsx";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { checkAuth } from "./features/authSlice.js";
@@ -59,6 +60,7 @@ function Layout() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/contact" element={<ContactUs />} />
       </Routes>
       <Footer />
     </>
