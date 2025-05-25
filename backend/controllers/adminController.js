@@ -10,20 +10,9 @@ export const getAdminDashboard = asyncHandler(async (req, res) => {
   const userCount = await User.countDocuments();
   const productCount = await Product.countDocuments();
 
-  // Get recent users
-  const recentUsers = await User.find()
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .select("-password");
-
-  // Get recent products
-  const recentProducts = await Product.find().sort({ createdAt: -1 }).limit(5);
-
   res.json({
     userCount,
     productCount,
-    recentUsers,
-    recentProducts,
   });
 });
 
