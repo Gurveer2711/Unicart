@@ -23,23 +23,23 @@ export default function MarqueeEffect() {
         variants={marqueeVariants}
         animate="animate"
       >
-        <span className="mx-4 text-md md:text-xl">
-          ⚡ SUMMER SALE - UP TO 50% OFF ⚡
+        <span className="mx-4 text-lg md:text-2xl font-bold">
+          SUMMER SALE - UP TO 50% OFF
         </span>
-        <span className="mx-4 text-md md:text-xl">
-          🚚 FREE SHIPPING ON ALL ORDERS 🚚
+        <span className="mx-4 text-lg md:text-2xl font-bold">
+          FREE SHIPPING ON ALL ORDERS
         </span>
-        <span className="mx-4 text-md md:text-xl">
-          💯 100% AUTHENTIC PRODUCTS 💯
+        <span className="mx-4 text-lg md:text-2xl font-bold">
+          100% AUTHENTIC PRODUCTS
         </span>
-        <span className="mx-4 text-md md:text-xl">
-          🔄 EASY RETURNS & EXCHANGES 🔄
+        <span className="mx-4 text-lg md:text-2xl font-bold">
+          EASY RETURNS & EXCHANGES
         </span>
-        <span className="mx-4 text-md md:text-xl">
-          ⚡ SUMMER SALE - UP TO 50% OFF ⚡
+        <span className="mx-4 text-lg md:text-2xl font-bold">
+          SUMMER SALE - UP TO 50% OFF
         </span>
-        <span className="mx-4 text-md md:text-xl">
-          🚚 FREE SHIPPING ON ALL ORDERS 🚚
+        <span className="mx-4 text-lg md:text-2xl font-bold">
+          FREE SHIPPING ON ALL ORDERS
         </span>
       </motion.div>
     </div>
