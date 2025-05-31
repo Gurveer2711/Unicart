@@ -101,17 +101,17 @@ const ProfilePage = () => {
   if (!userInfo) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 mt-20">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 mt-20">
       <div className="max-w-7xl mx-auto">
-        <div className="flex gap-6">
-          {/* Sidebar */}
-          <div className="w-64 bg-white shadow rounded-lg p-4 relative min-h-[300px]">
-            <div className="space-y-2">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Sidebar - Now responsive */}
+          <div className="w-full lg:w-64 bg-white shadow rounded-lg p-4 relative">
+            <div className="flex lg:flex-col gap-2 lg:gap-0">
               <button
                 onClick={() => setActiveTab("profile")}
-                className={`w-full text-left px-4 py-2 rounded-md ${
+                className={`flex-1 lg:flex-none text-left px-4 py-2 rounded-md ${
                   activeTab === "profile"
-                    ? "text-orange-700"
+                    ? "bg-orange-50 text-orange-700"
                     : "hover:bg-gray-100"
                 }`}
               >
@@ -119,16 +119,16 @@ const ProfilePage = () => {
               </button>
               <button
                 onClick={() => setActiveTab("orders")}
-                className={`w-full text-left px-4 py-2 rounded-md ${
+                className={`flex-1 lg:flex-none text-left px-4 py-2 rounded-md ${
                   activeTab === "orders"
-                    ? "text-orange-700"
+                    ? "bg-orange-50 text-orange-700"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 My Orders
               </button>
             </div>
-            <div className="absolute bottom-4 left-4 right-4">
+            <div className="mt-4 lg:mt-0 lg:absolute lg:bottom-4 lg:left-4 lg:right-4">
               <button
                 onClick={handleLogoutClick}
                 className="w-full text-left px-4 py-2 rounded-md text-red-600 hover:bg-red-100"
@@ -141,15 +141,15 @@ const ProfilePage = () => {
           {/* Main Content */}
           <div className="flex-1">
             {activeTab === "profile" ? (
-              <div className="bg-white shadow rounded-lg p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">
+              <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                     Profile Information
                   </h2>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+                      className="w-full sm:w-auto bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
                     >
                       Edit Profile
                     </button>
@@ -218,7 +218,7 @@ const ProfilePage = () => {
                         placeholder="Street"
                         className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
                       />
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input
                           type="text"
                           name="address.city"
@@ -238,7 +238,7 @@ const ProfilePage = () => {
                           className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input
                           type="text"
                           name="address.zipCode"
@@ -262,143 +262,69 @@ const ProfilePage = () => {
                   </div>
 
                   {isEditing && (
-                    <div className="flex justify-end gap-3 pt-4">
+                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                      <button
+                        type="submit"
+                        className="w-full sm:w-auto bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700"
+                      >
+                        Save Changes
+                      </button>
                       <button
                         type="button"
                         onClick={() => setIsEditing(false)}
-                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+                        className="w-full sm:w-auto bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300"
                       >
                         Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={profileLoading}
-                        className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {profileLoading ? "Saving..." : "Save Changes"}
                       </button>
                     </div>
                   )}
                 </form>
               </div>
             ) : (
-              <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
                   My Orders
                 </h2>
-
-                {ordersError && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {ordersLoading ? (
+                  <div className="text-center py-4">Loading orders...</div>
+                ) : ordersError ? (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                     {ordersError}
                   </div>
-                )}
-
-                {ordersLoading ? (
-                  <div className="text-center py-8">Loading orders...</div>
-                ) : orders.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                ) : orders?.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500">
                     No orders found
                   </div>
                 ) : (
-                  <div className="space-y-6">
-                    {orders.map((order) => (
+                  <div className="space-y-4">
+                    {orders?.map((order) => (
                       <div
                         key={order._id}
-                        className="border border-gray-200 rounded-lg p-5 shadow-sm bg-white hover:shadow-md transition overflow-hidden"
+                        className="border rounded-lg p-4 hover:shadow-md transition"
                       >
-                        <div className="flex justify-between items-center mb-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
                           <div>
-                            <p className="text-sm font-medium">
-                              Order #{order._id.slice(-6)}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(order.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
+                            <p className="font-medium">Order #{order._id}</p>
+                            <p className="text-sm text-gray-500">
+                              {new Date(order.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            className={`px-3 py-1 rounded-full text-sm ${
                               order.status === "delivered"
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-green-100 text-green-800"
                                 : order.status === "processing"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : "bg-gray-100 text-gray-600"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-blue-100 text-blue-800"
                             }`}
                           >
-                            {order.status.charAt(0).toUpperCase() +
-                              order.status.slice(1)}
+                            {order.status}
                           </span>
                         </div>
-
-                        <div className="divide-y">
-                          {order.orderItems.map((item) => (
-                            <div key={item._id} className="flex py-3 gap-4">
-                              <img
-                                src={item.image || "/placeholder.svg"}
-                                alt={item.title}
-                                className="w-16 h-16 object-contain rounded-lg"
-                              />
-                              <div className="flex-1">
-                                <h3 className="font-medium">{item.title}</h3>
-                                <p className="text-sm text-gray-500">
-                                  Qty: {item.quantity}
-                                </p>
-                              </div>
-                              <p className="text-sm font-medium">
-                                Rs {item.price}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="mt-4 pt-4 border-t border-dashed">
-                          <div className="flex items-start gap-2">
-                            <div className="p-1.5 rounded-full bg-orange-100">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="text-orange-600"
-                              >
-                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                                <circle cx="12" cy="10" r="3" />
-                              </svg>
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="text-sm font-medium text-gray-700 mb-1">
-                                Shipping Address
-                              </h4>
-                              <address className="not-italic text-sm text-gray-600 leading-relaxed">
-                                {order.shippingAddress?.address?.street}, <br />
-                                {order.shippingAddress?.address?.city},{" "}
-                                {order.shippingAddress?.address?.state}{" "}
-                                {order.shippingAddress?.address?.zipCode}
-                                <br />
-                                {order.shippingAddress?.address?.country}
-                              </address>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between items-center mt-4 pt-4 border-t">
-                          <span className="text-sm font-semibold text-gray-600">
-                            Total
-                          </span>
-                          <span className="text-lg font-bold text-gray-900">
-                            Rs {order.totalPrice}
-                          </span>
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600">
+                            Total: ${order.totalAmount}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -410,28 +336,28 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Logout Modal */}
+      {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Confirm Logout
             </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to log out of your account?
+            <p className="text-gray-500 mb-6">
+              Are you sure you want to logout?
             </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={handleLogoutCancel}
-                className="bg-gray-100 px-4 py-2 rounded-md text-gray-700 hover:bg-gray-200"
-              >
-                Cancel
-              </button>
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleLogoutConfirm}
-                className="bg-red-600 px-4 py-2 rounded-md text-white hover:bg-red-700"
+                className="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
               >
                 Logout
+              </button>
+              <button
+                onClick={handleLogoutCancel}
+                className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+              >
+                Cancel
               </button>
             </div>
           </div>
