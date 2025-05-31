@@ -14,11 +14,20 @@ function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">About Us</h3>
             <p className="text-sm">
-              At{" "}
-              <span className="font-libre font-semibold text-md">UniCart</span>,
-              we bring you a seamless shopping experience with high-quality
-              products, unbeatable deals, and exceptional customer service.
+              Welcome to{" "}
+              <span className="font-['Montserrat'] font-bold text-md uppercase tracking-tight">
+                UniCart
+              </span>
+              , your premier destination for curated shopping excellence. We
+              pride ourselves on delivering an exceptional shopping experience
+              with:
             </p>
+            <ul className="text-sm mt-2 space-y-1">
+              <li>• Premium quality products at competitive prices</li>
+              <li>• Fast and reliable nationwide shipping</li>
+              <li>• Secure payment options and easy returns</li>
+              <li>• Dedicated 24/7 customer support</li>
+            </ul>
           </div>
 
           {/* Quick Links */}

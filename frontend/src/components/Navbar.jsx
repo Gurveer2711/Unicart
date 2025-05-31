@@ -1,8 +1,6 @@
-"use client";
-
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { ShoppingCart, User, LogOut, LogIn, Menu } from "lucide-react"; // Added Menu to imports
+import { ShoppingCart, User, LogOut, LogIn, Menu } from "lucide-react";
 import { useSelector } from "react-redux";
 
 const Navbar = () => {
@@ -20,18 +18,15 @@ const Navbar = () => {
 
   return (
     <nav className="font-inter bg-[#fff2dd] w-full fixed top-0 left-0 shadow-md z-50 h-[70px] sm:h-auto">
-      <div className="mx-auto flex justify-between items-center px-6 mb-5">
-        {/* Logo */}
-        <NavLink to="/">
-          <img
-            src="/logoHeading2.png"
-            alt="Logo"
-            className="absolute -mt-10 -ml-3 sm:-mt-8 h-[100px] w-auto z-10"
-          />
+      <div className="mx-auto flex justify-between items-center px-6 py-6">
+        <NavLink to="/" className="flex items-center">
+          <h1 className="text-2xl font-bold text-black tracking-tight font-['Montserrat'] uppercase">
+            UNICART
+          </h1>
         </NavLink>
 
         {/* Desktop Menu - Moved to right side */}
-        <div className="hidden sm:flex space-x-6 mt-9 px-10 items-center ml-auto">
+        <div className="hidden sm:flex items-center space-x-6">
           <NavLink
             to="/"
             className={({ isActive }) =>
@@ -87,25 +82,9 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Controls - User icon and Menu icon on right */}
-        <div className="flex items-center gap-4 sm:hidden mt-5">
-          {/* User Profile Icon for Mobile */}
-          {userInfo ? (
-            <NavLink to="/profile" className="relative">
-              <User className="w-7 h-7 text-black" />
-              {userInfo.role === "admin" && (
-                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
-                  A
-                </span>
-              )}
-            </NavLink>
-          ) : (
-            <NavLink to="/login" className="relative">
-              <LogIn className="w-7 h-7 text-black" />
-            </NavLink>
-          )}
-
-          {/* Hamburger Menu (Mobile) - Now using Lucide Menu icon */}
+        {/* Mobile Controls - Menu icon on right */}
+        <div className="flex items-center sm:hidden">
+          {/* Hamburger Menu (Mobile) */}
           <button
             onClick={toggleMenu}
             className="focus:outline-none"
@@ -171,11 +150,17 @@ const Navbar = () => {
           >
             Products
           </NavLink>
-          {/* Cart with Badge */}
-          <NavLink to="/cart" className="relative">
-            <ShoppingCart className="w-7 h-7 text-black hover:text-[#f46530]" />
+
+          {/* Cart with Badge for Mobile */}
+          <NavLink
+            to="/cart"
+            onClick={toggleMenu}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold hover:text-[#f46530]"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            Cart
             {cartItemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+              <span className="bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
                 {cartItemCount}
               </span>
             )}
@@ -191,7 +176,7 @@ const Navbar = () => {
                 <User className="w-5 h-5" />
                 Profile
                 {userInfo.role === "admin" && (
-                  <span className="ml-1 hover:text-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+                  <span className="ml-1 bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
                     Admin
                   </span>
                 )}
