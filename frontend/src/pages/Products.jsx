@@ -3,49 +3,37 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../features/productSlice";
 import ProductCard from "../components/ProductCard";
 import { useNotification } from "../context/NotificationContext";
-import {
-  selectCartItems,
-  selectCartLoading,
-  selectCartError,
-  selectCartTotalAmount,
-  makeSelectIsItemLoading,
-} from "../features/cartSelectors";
+
 const Products = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.products);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("default"); // New state for sorting
+  const [sortBy, setSortBy] = useState("default");
   const { addNotification } = useNotification();
-  const cartitems = useSelector(selectCartItems);
-  const cartloading = useSelector(selectCartLoading);
-  const carterror = useSelector(selectCartError);
-  const totalAmount = useSelector(selectCartTotalAmount);
   const successMessage = useSelector((state) => state.cart.successMessage);
-  const selectIsItemLoading = makeSelectIsItemLoading();
 
+  useEffect(() => {
+    if (successMessage) {
+      addNotification({
+        message: successMessage,
+        type: "success",
+        duration: 3000,
+      });
+      dispatch({ type: "cart/clearSuccessMessage" });
+    }
+  }, [successMessage, dispatch, addNotification]);
 
-    useEffect(() => {
-      if (successMessage) {
-        addNotification({
-          message: successMessage,
-          type: "success",
-          duration: 3000,
-        });
-        dispatch({ type: "cart/clearSuccessMessage" });
-      }
-    }, [successMessage, dispatch, addNotification]);
-
-    useEffect(() => {
-      if (error) {
-        addNotification({
-          message: error,
-          type: "error",
-          duration: 5000,
-        });
-        dispatch({ type: "cart/clearError" });
-      }
-    }, [error, dispatch, addNotification]);
+  useEffect(() => {
+    if (error) {
+      addNotification({
+        message: error,
+        type: "error",
+        duration: 5000,
+      });
+      dispatch({ type: "cart/clearError" });
+    }
+  }, [error, dispatch, addNotification]);
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -58,7 +46,6 @@ const Products = () => {
       : [];
   }, [items]);
 
-  // Memoize filtered products before sorting
   const filteredProducts = useMemo(() => {
     return items.filter((product) => {
       const matchesSearch = product.title

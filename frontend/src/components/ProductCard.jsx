@@ -9,6 +9,7 @@ const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { addNotification } = useNotification();
+  const { userInfo } = useSelector((state) => state.auth);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -27,6 +28,16 @@ const ProductCard = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
 
+    if (!userInfo) {
+      addNotification({
+        message: "Please log in to add items to cart",
+        type: "error",
+        duration: 3000,
+      });
+      navigate("/login");
+      return;
+    }
+
     if (remainingStock <= 0) {
       addNotification({
         message: "Cannot add more. Stock limit reached.",
@@ -38,7 +49,32 @@ const ProductCard = ({ product }) => {
 
     const qtyToAdd = Math.min(quantity, remainingStock);
 
-    dispatch(addToCart({ productId: product._id, quantity: qtyToAdd }));
+    dispatch(addToCart({ productId: product._id, quantity: qtyToAdd }))
+      .unwrap()
+      .then(() => {
+        addNotification({
+          message: "Added to cart successfully",
+          type: "success",
+          duration: 2000,
+        });
+      })
+      .catch((error) => {
+        if (
+          error.error === "You already have the maximum quantity in your cart"
+        ) {
+          addNotification({
+            message: error.error,
+            type: "error",
+            duration: 3000,
+          });
+        } else {
+          addNotification({
+            message: error.message || "Error adding to cart",
+            type: "error",
+            duration: 3000,
+          });
+        }
+      });
   };
 
   const handleCardClick = () => {

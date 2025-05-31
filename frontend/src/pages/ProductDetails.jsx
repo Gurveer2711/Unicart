@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { fetchProductById } from "../features/productSlice";
 import { addToCart } from "../features/cartSlice";
 import { useNotification } from "../context/NotificationContext";
@@ -10,7 +10,9 @@ import { useNotification } from "../context/NotificationContext";
 const ProductDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { addNotification } = useNotification();
+  const { userInfo } = useSelector((state) => state.auth);
 
   // Fetch product only when ID changes
   useEffect(() => {
@@ -36,6 +38,17 @@ const ProductDetails = () => {
   // Handle Add to Cart
   const handleAddToCart = (e) => {
     e.preventDefault();
+
+    if (!userInfo) {
+      addNotification({
+        message: "Please log in to add items to cart",
+        type: "error",
+        duration: 3000,
+      });
+      navigate("/login");
+      return;
+    }
+
     if (stockLeft >= quantity) {
       dispatch(addToCart({ productId: selectedProduct._id, quantity }))
         .unwrap()

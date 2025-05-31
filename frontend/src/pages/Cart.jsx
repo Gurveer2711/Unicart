@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   removeFromCart,
   addToCart,
@@ -19,6 +20,7 @@ import {
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const items = useSelector(selectCartItems);
   const loading = useSelector(selectCartLoading);
   const error = useSelector(selectCartError);
@@ -26,8 +28,19 @@ const Cart = () => {
   const successMessage = useSelector((state) => state.cart.successMessage);
   const itemLoadingStates = useSelector(selectItemLoadingStates);
   const { addNotification } = useNotification();
+  const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    if (!userInfo) {
+      addNotification({
+        message: "Log in to see your cart.",
+        type: "error",
+        duration: 2000,
+      });
+      navigate("/login");
+      return;
+    }
+
     if (successMessage) {
       addNotification({
         message: successMessage,
@@ -36,10 +49,14 @@ const Cart = () => {
       });
       dispatch({ type: "cart/clearSuccessMessage" });
     }
-  }, [successMessage, dispatch, addNotification]);
+  }, [successMessage, dispatch, addNotification, userInfo, navigate]);
 
   useEffect(() => {
     if (error) {
+      if (error.includes("authentication") || error.includes("unauthorized")) {
+        navigate("/login");
+        return;
+      }
       addNotification({
         message: error,
         type: "error",
@@ -47,19 +64,28 @@ const Cart = () => {
       });
       dispatch({ type: "cart/clearError" });
     }
-  }, [error, dispatch, addNotification]);
+  }, [error, dispatch, addNotification, navigate]);
 
   useEffect(() => {
-    dispatch(fetchCart())
-      .unwrap()
-      .catch((error) => {
-        addNotification({
-          message: error,
-          type: "error",
-          duration: 3000,
+    if (userInfo) {
+      dispatch(fetchCart())
+        .unwrap()
+        .catch((error) => {
+          if (
+            error.includes("authentication") ||
+            error.includes("unauthorized")
+          ) {
+            navigate("/login");
+            return;
+          }
+          addNotification({
+            message: error,
+            type: "error",
+            duration: 3000,
+          });
         });
-      });
-  }, [dispatch, addNotification]);
+    }
+  }, [dispatch, addNotification, userInfo, navigate]);
 
   useEffect(() => {
     const correctCartStock = async () => {
@@ -138,8 +164,8 @@ const Cart = () => {
   const handleClearCart = useCallback(async () => {
     try {
       await dispatch(clearCart()).unwrap();
-    } catch (error){
-      throw new error;
+    } catch (error) {
+      throw new error();
     }
   }, [dispatch]);
 
