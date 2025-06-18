@@ -392,10 +392,54 @@ const ProfilePage = () => {
                               order.status.slice(1)}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <p className="text-lg font-semibold text-gray-900">
-                            Total: ${order.totalAmount?.toFixed(2) || "0.00"}
-                          </p>
+
+                        {/* Order Items Details */}
+                        <div className="mt-4">
+                          <h4 className="font-semibold text-gray-900 mb-3">
+                            Order Items:
+                          </h4>
+                          <div className="space-y-3">
+                            {order.orderItems?.map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-4 bg-gray-50 rounded-lg p-3"
+                              >
+                                <img
+                                  src={item.image || "/placeholder.svg"}
+                                  alt={item.title}
+                                  className="w-12 h-12 object-contain rounded-lg"
+                                />
+                                <div className="flex-1">
+                                  <h5 className="font-medium text-gray-900">
+                                    {item.title}
+                                  </h5>
+                                  <p className="text-sm text-gray-600">
+                                    Quantity: {item.quantity}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    Price: ₹{item.price?.toFixed(2) || "0.00"}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-medium text-gray-900">
+                                    ₹
+                                    {(
+                                      (item.price || 0) * (item.quantity || 0)
+                                    ).toFixed(2)}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Order Total */}
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="flex justify-between items-center">
+                            <p className="text-lg font-semibold text-gray-900">
+                              Total: ₹{order.totalPrice?.toFixed(2) || "0.00"}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     ))}
