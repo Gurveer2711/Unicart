@@ -5,7 +5,7 @@ import { forgotPassword } from "../features/authSlice";
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
-  const { loading, error, message } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
 
 
 forgotPassword();
@@ -18,8 +18,7 @@ forgotPassword();
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-4">Forgot Password</h2>
-        {error && <p className="text-red-500 text-center">{error}</p>}
-        {message && <p className="text-green-500 text-center">{message}</p>}
+       
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input

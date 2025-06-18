@@ -316,7 +316,7 @@ const CheckoutPage = () => {
                       </p>
                     </div>
                     <p className="font-medium font-['Karla']">
-                      Rs {item.productId.discountedPrice * item.quantity}
+                      ₹{item.productId.discountedPrice * item.quantity}
                     </p>
                   </div>
                 ))}
@@ -326,7 +326,7 @@ const CheckoutPage = () => {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Subtotal</span>
-                  <span>Rs {calculateTotal()}</span>
+                  <span>₹{calculateTotal()}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 font-['Karla']">
                   <span>Shipping</span>
@@ -335,7 +335,7 @@ const CheckoutPage = () => {
 
                 <div className="flex justify-between font-semibold text-lg pt-2 border-t font-['Karla']">
                   <span>Total</span>
-                  <span>Rs {calculateTotal().toFixed(0)}</span>
+                  <span>₹{calculateTotal().toFixed(0)}</span>
                 </div>
               </div>
             </div>

@@ -222,8 +222,8 @@ const Cart = () => {
           <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold text-gray-800 mb-2 font-['Karla']">
               Total:{" "}
-              <span className="text-[#f46530]">
-                Rs {totalAmount ? totalAmount.toFixed(0) : "0"}
+              <span className="text-lg font-bold text-[#f46530]">
+                ₹{totalAmount ? totalAmount.toFixed(0) : "0"}
               </span>
             </h2>
             <NavLink
