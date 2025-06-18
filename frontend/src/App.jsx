@@ -23,6 +23,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import AdminDashboard from "./pages/admin-view/AdminDashboard.jsx";
 import { NotificationProvider } from "./context/NotificationContext";
 import NotificationContainer from "./components/Notification/NotificationContainer";
 
@@ -39,6 +40,7 @@ function Layout() {
       "/checkout",
       "/products",
       "/product/:id",
+      "/admin/dashboard",
     ];
     if (includedPaths.includes(location.pathname)) {
       dispatch(checkAuth());
@@ -60,6 +62,7 @@ function Layout() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/contact" element={<ContactUs />} />
       </Routes>
       <Footer />
