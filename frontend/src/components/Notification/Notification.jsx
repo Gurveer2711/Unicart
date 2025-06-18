@@ -6,15 +6,25 @@ import "./Notification.css";
 const Notification = ({ message, type, onClose, duration = 5000 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
+  const [displayMessage, setDisplayMessage] = useState("");
 
   useEffect(() => {
-    // If message is an error object, extract the error message
-    if (type === "error" && typeof message === "object") {
-      const errorMessage =
-        message.message || message.error || "An error occurred";
-      const details = message.details || message.stack || null;
-      setErrorDetails(details);
-      message = errorMessage;
+    // Handle different message types
+    if (typeof message === "object") {
+      // If it's an error object, extract the message
+      if (type === "error") {
+        const errorMessage =
+          message.message || message.error || "An error occurred";
+        const details = message.details || message.stack || null;
+        setErrorDetails(details);
+        setDisplayMessage(errorMessage);
+      } else {
+        // For non-error objects, try to stringify or use a default
+        setDisplayMessage(JSON.stringify(message) || "Notification");
+      }
+    } else {
+      // If it's already a string, use it directly
+      setDisplayMessage(String(message));
     }
 
     const timer = setTimeout(() => {
@@ -43,7 +53,7 @@ const Notification = ({ message, type, onClose, duration = 5000 }) => {
       <div className="notification-content">
         {getIcon()}
         <div className="notification-message-container">
-          <span className="notification-message">{message}</span>
+          <span className="notification-message">{displayMessage}</span>
           {errorDetails && (
             <details className="notification-error-details">
               <summary>Details</summary>

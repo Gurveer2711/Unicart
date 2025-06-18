@@ -78,8 +78,12 @@ const AdminProducts = () => {
 
   useEffect(() => {
     if (error) {
+      const errorMessage =
+        typeof error === "object"
+          ? error.message || "An error occurred"
+          : error;
       addNotification({
-        message: error,
+        message: errorMessage,
         type: "error",
         duration: 5000,
       });
@@ -147,7 +151,7 @@ const AdminProducts = () => {
 
   // Format price
   const formatPrice = (price) => {
-    return `$${parseFloat(price).toFixed(2)}`;
+    return `₹${parseFloat(price).toFixed(2)}`;
   };
 
   // Format date
