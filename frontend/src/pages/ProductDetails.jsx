@@ -114,12 +114,12 @@ const ProductDetails = () => {
           <h1 className="text-3xl font-bold mb-4">{selectedProduct?.title}</h1>
           <p className="text-gray-700 mb-4">{selectedProduct?.description}</p>
           <div className="flex items-center gap-2 mb-4">
-            <p className="text-2xl font-semibold text-black line-through">
-              Rs {selectedProduct?.originalPrice.toFixed(0)}
-            </p>
-            <p className="text-2xl font-semibold text-[#f46530]">
-              Rs {selectedProduct?.discountedPrice.toFixed(0)}
-            </p>
+            <span className="text-xl font-bold text-black line-through">
+              ₹{selectedProduct?.originalPrice.toFixed(0)}
+            </span>
+            <span className="text-xl font-bold text-[#f46530]">
+              ₹{selectedProduct?.discountedPrice.toFixed(0)}
+            </span>
           </div>
 
           {/* Stock Status - Conditional Rendering */}

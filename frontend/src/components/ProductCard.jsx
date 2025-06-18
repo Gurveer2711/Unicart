@@ -113,10 +113,10 @@ const ProductCard = ({ product }) => {
 
         <div className="flex items-center justify-center gap-2 mt-2 font-['Karla']">
           <p className="text-xl font-bold text-black line-through">
-            Rs {product.originalPrice}
+            ₹{product.originalPrice}
           </p>
           <p className="text-xl font-bold text-[#f46530]">
-            Rs {product.discountedPrice}
+            ₹{product.discountedPrice}
           </p>
         </div>
 
