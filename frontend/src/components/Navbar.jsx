@@ -1,6 +1,13 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import { ShoppingCart, User, LogOut, LogIn, Menu } from "lucide-react";
+import {
+  ShoppingCart,
+  User,
+  LogOut,
+  LogIn,
+  Menu,
+  BarChart3,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 
 const Navbar = () => {
@@ -37,26 +44,33 @@ const Navbar = () => {
           >
             Home
           </NavLink>
-          <NavLink
-            to="/products"
-            className={({ isActive }) =>
-              `relative text-lg font-semibold text-black after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f46530] after:transition-all after:duration-300 ${
-                isActive ? "after:w-full text-[#f46530]" : "after:w-0"
-              } hover:after:w-full`
-            }
-          >
-            Products
-          </NavLink>
+
+          {/* Admin Dashboard Link */}
+          {userInfo?.role === "admin" && (
+            <NavLink
+              to="/admin/dashboard"
+              className={({ isActive }) =>
+                `relative text-lg font-semibold text-black after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f46530] after:transition-all after:duration-300 ${
+                  isActive ? "after:w-full text-[#f46530]" : "after:w-0"
+                } hover:after:w-full flex items-center gap-1`
+              }
+            >
+              <BarChart3 className="w-5 h-5" />
+              Dashboard
+            </NavLink>
+          )}
 
           {/* Cart with Badge */}
-          <NavLink to="/cart" className="relative">
-            <ShoppingCart className="w-7 h-7 text-black hover:text-[#f46530]" />
-            {cartItemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
-                {cartItemCount}
-              </span>
-            )}
-          </NavLink>
+          {userInfo?.role !== "admin" && (
+            <NavLink to="/cart" className="relative">
+              <ShoppingCart className="w-7 h-7 text-black hover:text-[#f46530]" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+                  {cartItemCount}
+                </span>
+              )}
+            </NavLink>
+          )}
 
           {/* User Profile Icon */}
           {userInfo ? (
@@ -139,32 +153,23 @@ const Navbar = () => {
           >
             Home
           </NavLink>
-          <NavLink
-            to="/products"
-            onClick={toggleMenu}
-            className={({ isActive }) =>
-              `relative text-lg font-semibold text-black after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-[#f46530] after:transition-all after:duration-300 ${
-                isActive ? "after:w-full text-[#f46530]" : "after:w-0"
-              } hover:after:w-full`
-            }
-          >
-            Products
-          </NavLink>
 
           {/* Cart with Badge for Mobile */}
-          <NavLink
-            to="/cart"
-            onClick={toggleMenu}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold hover:text-[#f46530]"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            Cart
-            {cartItemCount > 0 && (
-              <span className="bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
-                {cartItemCount}
-              </span>
-            )}
-          </NavLink>
+          {userInfo?.role !== "admin" && (
+            <NavLink
+              to="/cart"
+              onClick={toggleMenu}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold hover:text-[#f46530]"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              Cart
+              {cartItemCount > 0 && (
+                <span className="bg-[#f46530] text-white text-xs rounded-full px-2 py-0.5">
+                  {cartItemCount}
+                </span>
+              )}
+            </NavLink>
+          )}
 
           {userInfo ? (
             <>
