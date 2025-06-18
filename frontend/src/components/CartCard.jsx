@@ -36,12 +36,12 @@ const CartCard = ({
           {title}
         </h2>
         <div className="flex items-center gap-2 mt-1 font-['Karla']">
-          <p className="text-xl font-bold text-black line-through">
-            Rs {productId.originalPrice * 1.2}
-          </p>
-          <p className="text-xl font-bold text-[#f46530]">
-            Rs {productId.discountedPrice}
-          </p>
+          <span className="text-black line-through">
+            ₹{productId.originalPrice * 1.2}
+          </span>
+          <span className="text-[#f46530] font-bold">
+            ₹{productId.discountedPrice}
+          </span>
         </div>
         {stocksLeft > 5 ? (
           <p className="text-sm text-green-600 mt-1 font-['Karla']">In Stock</p>
