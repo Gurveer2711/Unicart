@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
-
+import multer from "multer";
 dotenv.config();
 
 cloudinary.config({
@@ -9,4 +9,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export default cloudinary;
+const storage = new multer.memoryStorage();
+
+async function imageUploadUtil(file) {
+  const result = await cloudinary.uploader.upload(file, {
+    resource_type: "auto",
+  });
+
+  return result;
+}
+
+const upload = multer({ storage });
+
+export { upload, imageUploadUtil, cloudinary };

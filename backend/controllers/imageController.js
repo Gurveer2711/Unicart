@@ -1,4 +1,4 @@
-import cloudinary from "../config/cloudinary.js";
+import { cloudinary } from "../config/cloudinary.js";
 import fs from "fs";
 
 export const uploadImage = (req, res) => {
@@ -47,4 +47,3 @@ export const removeImage = (req, res) => {
     res.json({ success: true, message: "File deleted successfully" });
   });
 };
-
