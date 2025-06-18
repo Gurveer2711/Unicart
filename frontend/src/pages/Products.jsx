@@ -2,11 +2,13 @@ import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../features/productSlice";
 import ProductCard from "../components/ProductCard";
+import AdminProducts from "./admin-view/AdminProducts";
 import { useNotification } from "../context/NotificationContext";
 
 const Products = () => {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector((state) => state.products);
+  const { userInfo } = useSelector((state) => state.auth);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("default");
@@ -72,6 +74,11 @@ const Products = () => {
         return sorted;
     }
   }, [filteredProducts, sortBy]);
+
+  // If user is admin, show admin products page
+  if (userInfo?.role === "admin") {
+    return <AdminProducts />;
+  }
 
   return (
     <div className="container mx-auto p-4 mt-4">

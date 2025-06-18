@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { updateUserProfile, logoutUser } from "../features/authSlice";
+import {
+  updateUserProfile,
+  logoutUser,
+  forgotPassword,
+} from "../features/authSlice";
 import { fetchUserOrders } from "../features/orderSlice";
+import { useNotification } from "../context/NotificationContext";
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { addNotification } = useNotification();
 
   const {
     userInfo,
@@ -34,6 +40,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
 
   useEffect(() => {
     if (userInfo) {
@@ -98,58 +105,89 @@ const ProfilePage = () => {
     setShowLogoutConfirm(false);
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    try {
+      await dispatch(forgotPassword(forgotPasswordEmail)).unwrap();
+      addNotification({
+        message: "Password reset link sent to your email!",
+        type: "success",
+        duration: 5000,
+      });
+      setForgotPasswordEmail("");
+    } catch (error) {
+      addNotification({
+        message: error.message || "Failed to send reset link",
+        type: "error",
+        duration: 5000,
+      });
+    }
+  };
+
   if (!userInfo) return null;
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 mt-20">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar - Now responsive */}
-          <div className="w-full lg:w-64 bg-white shadow rounded-lg p-4 relative">
-            <div className="flex lg:flex-col gap-2 lg:gap-0">
+          {/* Sidebar - Improved responsive design */}
+          <div className="w-full lg:w-64 bg-white shadow-lg rounded-xl p-6 relative">
+            <div className="flex lg:flex-col gap-1 lg:gap-2">
               <button
                 onClick={() => setActiveTab("profile")}
-                className={`flex-1 lg:flex-none text-left px-4 py-2 rounded-md ${
+                className={`flex-1 lg:flex-none text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                   activeTab === "profile"
-                    ? "bg-orange-50 text-orange-700"
-                    : "hover:bg-gray-100"
+                    ? "text-orange-700 border-2 border-orange-200 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 Profile Information
               </button>
+              {userInfo?.role !== "admin" && (
+                <button
+                  onClick={() => setActiveTab("orders")}
+                  className={`flex-1 lg:flex-none text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                    activeTab === "orders"
+                      ? "text-orange-700 border-2 border-orange-200 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  My Orders
+                </button>
+              )}
               <button
-                onClick={() => setActiveTab("orders")}
-                className={`flex-1 lg:flex-none text-left px-4 py-2 rounded-md ${
-                  activeTab === "orders"
-                    ? "bg-orange-50 text-orange-700"
-                    : "text-gray-700 hover:bg-gray-100"
+                onClick={() => setActiveTab("password")}
+                className={`flex-1 lg:flex-none text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  activeTab === "password"
+                    ? "text-orange-700 border-2 border-orange-200 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
-                My Orders
+                Change Password
               </button>
             </div>
-            <div className="mt-4 lg:mt-0 lg:absolute lg:bottom-4 lg:left-4 lg:right-4">
+            <div className="mt-6 lg:mt-8 lg:absolute lg:bottom-6 lg:left-6 lg:right-6">
               <button
                 onClick={handleLogoutClick}
-                className="w-full text-left px-4 py-2 rounded-md text-red-600 hover:bg-red-100"
+                className="w-full text-left px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 font-medium transition-all duration-200"
               >
                 Logout
               </button>
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1">
+          {/* Main Content - Improved spacing and layout */}
+          <div className="flex-1 min-w-0">
             {activeTab === "profile" ? (
-              <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+              <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
                     Profile Information
                   </h2>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="w-full sm:w-auto bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+                      className="w-full sm:w-auto bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 font-medium transition-colors duration-200 shadow-sm"
                     >
                       Edit Profile
                     </button>
@@ -157,41 +195,43 @@ const ProfilePage = () => {
                 </div>
 
                 {profileError && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
                     {profileError}
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      disabled={!isEditing}
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        disabled
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm opacity-70 cursor-not-allowed"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      disabled
-                      className="mt-1 block w-full rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm opacity-70 cursor-not-allowed"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Phone
                     </label>
                     <input
@@ -200,25 +240,25 @@ const ProfilePage = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
                     />
                   </div>
 
-                  <div className="border-t pt-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="border-t border-gray-200 pt-8">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-6">
                       Address
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       <input
                         type="text"
                         name="address.street"
                         value={formData.address.street}
                         onChange={handleChange}
                         disabled={!isEditing}
-                        placeholder="Street"
-                        className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        placeholder="Street Address"
+                        className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
                       />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <input
                           type="text"
                           name="address.city"
@@ -226,7 +266,7 @@ const ProfilePage = () => {
                           onChange={handleChange}
                           disabled={!isEditing}
                           placeholder="City"
-                          className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
                         />
                         <input
                           type="text"
@@ -235,10 +275,10 @@ const ProfilePage = () => {
                           onChange={handleChange}
                           disabled={!isEditing}
                           placeholder="State"
-                          className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
                         />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <input
                           type="text"
                           name="address.zipCode"
@@ -246,7 +286,7 @@ const ProfilePage = () => {
                           onChange={handleChange}
                           disabled={!isEditing}
                           placeholder="Zip Code"
-                          className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
                         />
                         <input
                           type="text"
@@ -255,24 +295,24 @@ const ProfilePage = () => {
                           onChange={handleChange}
                           disabled={!isEditing}
                           placeholder="Country"
-                          className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50"
                         />
                       </div>
                     </div>
                   </div>
 
                   {isEditing && (
-                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
                       <button
                         type="submit"
-                        className="w-full sm:w-auto bg-orange-600 text-white px-6 py-2 rounded-md hover:bg-orange-700"
+                        className="w-full sm:w-auto bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 font-medium transition-colors duration-200 shadow-sm"
                       >
                         Save Changes
                       </button>
                       <button
                         type="button"
                         onClick={() => setIsEditing(false)}
-                        className="w-full sm:w-auto bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300"
+                        className="w-full sm:w-auto bg-gray-200 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-300 font-medium transition-colors duration-200"
                       >
                         Cancel
                       </button>
@@ -280,37 +320,67 @@ const ProfilePage = () => {
                   )}
                 </form>
               </div>
-            ) : (
-              <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">
+            ) : activeTab === "orders" ? (
+              <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">
                   My Orders
                 </h2>
                 {ordersLoading ? (
-                  <div className="text-center py-4">Loading orders...</div>
+                  <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-500 border-t-transparent mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading orders...</p>
+                  </div>
                 ) : ordersError ? (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
                     {ordersError}
                   </div>
                 ) : orders?.length === 0 ? (
-                  <div className="text-center py-4 text-gray-500">
-                    No orders found
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 mb-4">
+                      <svg
+                        className="w-16 h-16 mx-auto"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 text-lg">No orders found</p>
+                    <p className="text-gray-400 mt-2">
+                      Start shopping to see your orders here
+                    </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {orders?.map((order) => (
                       <div
                         key={order._id}
-                        className="border rounded-lg p-4 hover:shadow-md transition"
+                        className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-200"
                       >
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                           <div>
-                            <p className="font-medium">Order #{order._id}</p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(order.createdAt).toLocaleDateString()}
+                            <p className="font-semibold text-lg text-gray-900">
+                              Order #{order._id.slice(-8)}
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {new Date(order.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )}
                             </p>
                           </div>
                           <span
-                            className={`px-3 py-1 rounded-full text-sm ${
+                            className={`px-4 py-2 rounded-full text-sm font-medium ${
                               order.status === "delivered"
                                 ? "bg-green-100 text-green-800"
                                 : order.status === "processing"
@@ -318,18 +388,89 @@ const ProfilePage = () => {
                                 : "bg-blue-100 text-blue-800"
                             }`}
                           >
-                            {order.status}
+                            {order.status.charAt(0).toUpperCase() +
+                              order.status.slice(1)}
                           </span>
                         </div>
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-600">
-                            Total: ${order.totalAmount}
+                        <div className="flex justify-between items-center">
+                          <p className="text-lg font-semibold text-gray-900">
+                            Total: ${order.totalAmount?.toFixed(2) || "0.00"}
                           </p>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
+              </div>
+            ) : (
+              <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">
+                  Change Password
+                </h2>
+                <div className="max-w-lg">
+                  <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+                    Enter your email address and we&apos;ll send you a link to
+                    reset your password.
+                  </p>
+
+                  <form onSubmit={handleForgotPassword} className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={forgotPasswordEmail}
+                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-orange-600 text-white py-3 px-6 rounded-lg hover:bg-orange-700 transition-colors duration-200 font-medium shadow-sm"
+                      disabled={profileLoading}
+                    >
+                      {profileLoading ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                          Sending...
+                        </div>
+                      ) : (
+                        "Send Reset Link"
+                      )}
+                    </button>
+                  </form>
+
+                  <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+                    <h3 className="text-lg font-semibold text-blue-900 mb-4">
+                      What happens next?
+                    </h3>
+                    <ul className="text-blue-800 space-y-3">
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-3 mt-1">•</span>
+                        <span>
+                          You&apos;ll receive an email with a password reset
+                          link
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-3 mt-1">•</span>
+                        <span>The link is valid for 5 minutes</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-3 mt-1">•</span>
+                        <span>Click the link to set a new password</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-blue-600 mr-3 mt-1">•</span>
+                        <span>You can then login with your new password</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -338,24 +479,24 @@ const ProfilePage = () => {
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-8 max-w-sm w-full shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
               Confirm Logout
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-600 mb-8">
               Are you sure you want to logout?
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleLogoutConfirm}
-                className="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-medium transition-colors duration-200"
               >
                 Logout
               </button>
               <button
                 onClick={handleLogoutCancel}
-                className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+                className="w-full bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 font-medium transition-colors duration-200"
               >
                 Cancel
               </button>

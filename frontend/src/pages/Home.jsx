@@ -41,26 +41,6 @@ export default function Home() {
           <Carousel images={images} />
         </div>
 
-        {/* Top Selling Products Section */}
-        <section className="my-10 px-4">
-          <div className="container mx-auto">
-            <h2 className="text-2xl sm:text-4xl font-bold text-[black] mb-8 text-center">
-              Top Selling Products
-            </h2>
-            <ProductCarousel products={topSelling} loading={loading} />
-          </div>
-        </section>
-
-        {/* New Products Section */}
-        <section className="my-10 px-4">
-          <div className="container mx-auto">
-            <h2 className="text-2xl sm:text-4xl font-bold text-[black] mb-8 text-center">
-              New Products
-            </h2>
-            <ProductCarousel products={newProducts} loading={loading} />
-          </div>
-        </section>
-
         {/* Feature section */}
         <FeatureSection />
       </div>

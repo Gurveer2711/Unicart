@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "./ProductCard";
@@ -25,7 +23,6 @@ export default function ProductCarousel({ products, loading }) {
     }
   };
 
-  // Handle scroll event to update position
   useEffect(() => {
     const handleScroll = () => {
       if (carouselRef.current) {
