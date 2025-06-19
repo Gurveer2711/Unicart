@@ -22,7 +22,8 @@ export default function Home() {
   const images = [women, men, vogue, couple, tech];
   const { userInfo } = useSelector((state) => state.auth);
   const isUser = userInfo?.role === "user";
-  
+  console.log(userInfo);
+  console.log(isUser); 
   useEffect(() => {
     dispatch(fetchTopSellingProducts());
     dispatch(fetchNewProducts());

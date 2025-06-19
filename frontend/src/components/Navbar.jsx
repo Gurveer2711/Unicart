@@ -46,7 +46,7 @@ const Navbar = () => {
           </NavLink>
 
           {/* Products Link - Only for logged in users */}
-          {userInfo ==='user' && (
+          {userInfo?.role ==='user' && (
             <NavLink
               to="/products"
               className={({ isActive }) =>
