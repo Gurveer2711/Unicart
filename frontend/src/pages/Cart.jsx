@@ -138,10 +138,15 @@ const Cart = () => {
   const handleClearCart = useCallback(async () => {
     try {
       await dispatch(clearCart()).unwrap();
+      addNotification({
+        message: "Cleared the cart",
+        type: "success",
+        duration: 1500,
+      });
     } catch (error) {
       throw new error();
     }
-  }, [dispatch]);
+  }, [dispatch,addNotification]);
 
   const isInitialLoading = loading && items.length === 0;
 
