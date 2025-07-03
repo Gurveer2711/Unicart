@@ -85,12 +85,6 @@ export const resetPassword = asyncHandler(async (req, res) => {
 });
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const token = req.cookies.token;
-  if (token) {
-    return res
-      .status(200)
-      .json({ message: "User is already logged in. Please log out first." });
-  }
 
   const { name, email, password, role } = req.body;
 
@@ -202,6 +196,6 @@ export const checkAuth = asyncHandler(async (req, res) => {
 
     return res.status(200).json({ user });
   } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(200).json({ message: "Invalid token" });
   }
 });
