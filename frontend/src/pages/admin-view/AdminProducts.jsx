@@ -10,6 +10,7 @@ import {
   clearError,
   updateFilters,
   clearFilters,
+  createProduct,
 } from "../../features/adminProductSlice";
 import {
   Package,
@@ -775,8 +776,84 @@ const ProductRow = ({
   );
 };
 
-// Product Modal Component (placeholder - you'll need to implement this)
+// Product Modal Component (Add/Edit Product)
 const ProductModal = ({ product, onClose }) => {
+  const dispatch = useDispatch();
+  const { products, loading } = useSelector((state) => state.adminProducts);
+  const { addNotification } = useNotification();
+
+  // Derive categories from existing products
+  const categories = Array.from(
+    new Set(products.map((p) => p.category).filter(Boolean))
+  );
+
+  // Form state
+  const [form, setForm] = useState({
+    title: product?.title || "",
+    description: product?.description || "",
+    originalPrice: product?.originalPrice || "",
+    discountedPrice: product?.discountedPrice || "",
+    category: product?.category || categories[0] || "",
+    stocksLeft: product?.stocksLeft || "",
+    rate: product?.rating?.rate || 1,
+    count: product?.rating?.count || 0,
+    image: null,
+  });
+  const [imagePreview, setImagePreview] = useState(product?.image || null);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
+    }));
+  };
+
+  // Handle image upload
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setForm((prev) => ({ ...prev, image: file }));
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    // Validate required fields
+    if (
+      !form.title ||
+      !form.description ||
+      !form.originalPrice ||
+      !form.discountedPrice ||
+      !form.category ||
+      form.stocksLeft === "" ||
+      (!product && !form.image)
+    ) {
+      setError("Please fill all required fields and upload an image.");
+      setSubmitting(false);
+      return;
+    }
+    try {
+      await dispatch(createProduct(form)).unwrap();
+      addNotification({
+        message: "Product added successfully!",
+        type: "success",
+      });
+      setSubmitting(false);
+      onClose();
+    } catch (err) {
+      setError(err || "Failed to add product");
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -788,14 +865,191 @@ const ProductModal = ({ product, onClose }) => {
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
+              disabled={submitting}
             >
               <XCircle className="w-6 h-6" />
             </button>
           </div>
         </div>
-        <div className="p-6">
-          <p className="text-gray-600">Product form coming soon...</p>
-        </div>
+        <form className="p-6 space-y-4" onSubmit={handleSubmit}>
+          {/* Image Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Product Image <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:outline-none"
+              disabled={submitting}
+            />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="mt-2 w-32 h-32 object-cover rounded-lg border"
+              />
+            )}
+          </div>
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+              disabled={submitting}
+            />
+          </div>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              rows={3}
+              required
+              disabled={submitting}
+            />
+          </div>
+          {/* Original Price */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Original Price (₹) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              name="originalPrice"
+              value={form.originalPrice}
+              onChange={handleChange}
+              min={1}
+              step={0.01}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+              disabled={submitting}
+            />
+          </div>
+          {/* Discounted Price */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Discounted Price (₹) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              name="discountedPrice"
+              value={form.discountedPrice}
+              onChange={handleChange}
+              min={1}
+              step={0.01}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+              disabled={submitting}
+            />
+          </div>
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+              disabled={submitting}
+            >
+              <option value="">Select category</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* Stocks Left */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Stocks Left <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              name="stocksLeft"
+              value={form.stocksLeft}
+              onChange={handleChange}
+              min={0}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+              disabled={submitting}
+            />
+          </div>
+          {/* Rating (optional) */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Rating (1-5)
+              </label>
+              <input
+                type="number"
+                name="rate"
+                value={form.rate}
+                onChange={handleChange}
+                min={1}
+                max={5}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={submitting}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Rating Count
+              </label>
+              <input
+                type="number"
+                name="count"
+                value={form.count}
+                onChange={handleChange}
+                min={0}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={submitting}
+              />
+            </div>
+          </div>
+          {/* Error Message */}
+          {error && <div className="text-red-600 text-sm">{error}</div>}
+          {/* Submit Button */}
+          <div className="flex justify-end gap-2 mt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={submitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
+              disabled={submitting || loading}
+            >
+              {submitting || loading
+                ? "Saving..."
+                : product
+                ? "Save Changes"
+                : "Add Product"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

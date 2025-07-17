@@ -1,25 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPassword } from "../features/authSlice";
+import { useNotification } from "../context/NotificationContext";
+import { clearMessage, clearError } from "../features/authSlice";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading, message, error } = useSelector((state) => state.auth);
+  const { addNotification } = useNotification();
 
+  useEffect(() => {
+    if (message) {
+      addNotification({ message, type: "success" });
+      dispatch(clearMessage());
+    }
+    if (error) {
+      addNotification({ message: error, type: "error" });
+      dispatch(clearError());
+    }
+  }, [message, error, addNotification, dispatch]);
 
-forgotPassword();
   const handleSubmit = (e) => {
     e.preventDefault();
-      dispatch(forgotPassword(email));
+    dispatch(forgotPassword(email));
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-4">Forgot Password</h2>
-       
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"

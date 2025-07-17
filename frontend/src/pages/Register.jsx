@@ -47,7 +47,7 @@ const Register = () => {
       navigate("/login");
     } catch (error) {
       addNotification({
-        message: error,
+        message: error.message,
         type: "error",
         duration: 5000,
       });

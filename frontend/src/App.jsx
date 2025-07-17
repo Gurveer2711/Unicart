@@ -32,6 +32,9 @@ function Layout() {
   const location = useLocation();
 
   useEffect(() => {
+    // Exclude forgot-password and reset-password routes from auth check
+    const excludedPaths = ["/forgot-password"];
+    const isResetPassword = location.pathname.startsWith("/reset-password");
     const includedPaths = [
       "/profile",
       "/checkout",
@@ -42,7 +45,11 @@ function Layout() {
       "/product/:id",
       "/admin/dashboard",
     ];
-    if (includedPaths.includes(location.pathname)) {
+    if (
+      includedPaths.includes(location.pathname) &&
+      !excludedPaths.includes(location.pathname) &&
+      !isResetPassword
+    ) {
       dispatch(checkAuth());
     }
   }, [dispatch, location.pathname]);

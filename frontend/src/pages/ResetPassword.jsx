@@ -15,8 +15,20 @@ const ResetPassword = () => {
   const { loading, error, message } = useSelector((state) => state.auth);
   const { token } = useParams();
 
+  const isStrongPassword = (password) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._#^()-])[A-Za-z\d@$!%*?&._#^()-]{8,}$/;
+    return regex.test(password);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isStrongPassword(newPassword)) {
+      alert(
+        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+      );
+      return;
+    }
     if (newPassword !== confirmPassword) {
       alert("Passwords do not match");
       return;
@@ -65,6 +77,12 @@ const ResetPassword = () => {
               {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
             </span>
           </div>
+          {newPassword && !isStrongPassword(newPassword) && (
+            <p className="text-sm text-red-500">
+              Password must be at least 8 characters and include uppercase,
+              lowercase, number, and special character.
+            </p>
+          )}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
